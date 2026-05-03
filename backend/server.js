@@ -2,6 +2,14 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import phongRoutes from "./routes/phongRoutes.js";
+import sinhVienRoutes from "./routes/sinhVienRoutes.js";
+import dienNuocRoutes from "./routes/dienNuocRoutes.js";
+import hoaDonRoutes from "./routes/hoaDonRoutes.js";
+import vatTuRoutes from "./routes/vatTuRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import { xacThucToken } from "./middlewares/authMiddleware.js";
+import taoAdminMacDinh from "./config/setupAdmin.js";
 
 // Nạp các biến môi trường từ file .env
 dotenv.config();
@@ -9,13 +17,32 @@ dotenv.config();
 // Kích hoạt kết nối đến MongoDB
 connectDB();
 
+// Tự động tạo tài khoản Admin mặc định nếu chưa có ai trong DB
+taoAdminMacDinh();
+
 const app = express();
 
 // Middlewares
 app.use(cors()); // Xử lý lỗi bảo mật CORS khi gọi API chéo domain
 app.use(express.json()); // Cho phép server đọc dữ liệu JSON từ body của request
 
-// Route cơ sở để kiểm tra server
+// Gắn route API đăng nhập (đăng nhập, tạo admin)
+app.use("/api/auth", authRoutes);
+
+// Gắn route API quản lý phòng
+app.use("/api/phong", phongRoutes);
+// Gắn route API quản lý sinh viên
+app.use("/api/sinhvien", sinhVienRoutes);
+// Gắn route API quản lý điện nước
+app.use("/api/dien-nuoc", dienNuocRoutes);
+// Gắn route API quản lý hóa đơn
+app.use("/api/hoadon", hoaDonRoutes);
+// Gắn route API quản lý vật tư
+app.use("/api/vattu", vatTuRoutes);
+
+app.get("/", (req, res) => {
+  res.send("API Quản lý Ký túc xá đang hoạt động ổn định!");
+});
 
 const PORT = process.env.PORT || 5000;
 
