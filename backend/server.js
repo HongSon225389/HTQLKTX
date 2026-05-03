@@ -16,9 +16,6 @@ app.use(cors()); // Xử lý lỗi bảo mật CORS khi gọi API chéo domain
 app.use(express.json()); // Cho phép server đọc dữ liệu JSON từ body của request
 
 // Route cơ sở để kiểm tra server
-app.get("/", (req, res) => {
-  res.send("API Quản lý Ký túc xá đang hoạt động ổn định!");
-});
 
 const PORT = process.env.PORT || 5000;
 
