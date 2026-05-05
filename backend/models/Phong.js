@@ -16,7 +16,7 @@ const phongSchema = new mongoose.Schema(
     },
     trangThai: {
       type: String,
-      enum: ["Trống", "Đã đầy", "Bảo trì"], // Giới hạn các giá trị hợp lệ
+      enum: ["Trống", "Đang ở", "Đã đầy", "Đang sửa"], // Giới hạn các giá trị hợp lệ
       default: "Trống",
     },
   },

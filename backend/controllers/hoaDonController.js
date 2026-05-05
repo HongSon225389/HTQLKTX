@@ -42,3 +42,54 @@ export const thanhToanHoaDon = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi thanh toán: " + error.message });
   }
 };
+
+export const taoHoaDon = async (req, res) => {
+  try {
+    const {
+      maHD,
+      phong,
+      loaiHD,
+      kyThanhToan,
+      dienCu,
+      dienMoi,
+      tienDien,
+      nuocCu,
+      nuocMoi,
+      tienNuoc,
+      tienPhong, // Đón nhận tiền phòng từ Frontend gửi lên
+      tongTien,
+    } = req.body;
+
+    // Kiểm tra xem mã hóa đơn đã tồn tại chưa
+    const checkTonTai = await HoaDon.findOne({ maHD });
+    if (checkTonTai) {
+      return res.status(400).json({ message: "Mã hóa đơn này đã tồn tại!" });
+    }
+
+    // Tạo hóa đơn mới với đầy đủ các trường chi tiết
+    const hoaDonMoi = new HoaDon({
+      maHD,
+      phong,
+      loaiHD,
+      kyThanhToan,
+      dienCu: dienCu || 0,
+      dienMoi: dienMoi || 0,
+      tienDien: tienDien || 0,
+      nuocCu: nuocCu || 0,
+      nuocMoi: nuocMoi || 0,
+      tienNuoc: tienNuoc || 0,
+      tienPhong: tienPhong || 0, // Lưu tiền phòng vào Database
+      tongTien: tongTien, // Tổng tiền (Điện + Nước + Phòng + Khác)
+      trangThai: "Chưa thanh toán",
+    });
+
+    await hoaDonMoi.save();
+
+    res.status(201).json({
+      message: "Tạo hóa đơn thành công!",
+      data: hoaDonMoi,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tạo hóa đơn: " + error.message });
+  }
+};

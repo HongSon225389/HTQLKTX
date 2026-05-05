@@ -2,17 +2,53 @@
 import VatTu from "../models/VatTu.js";
 import Phong from "../models/Phong.js";
 
-// Lấy danh sách vật tư (Có thể lọc theo phòng cụ thể)
+// 1. Lấy danh sách vật tư (Hỗ trợ Phân trang + Tìm kiếm + Lọc trạng thái)
 export const layDanhSachVatTu = async (req, res) => {
   try {
-    const { phongId } = req.query; // Lấy ID phòng từ query URL nếu có
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Lấy tinhTrang từ query
+    const { search, tinhTrang, phongId } = req.query;
 
     let query = {};
-    if (phongId) query.phong = phongId;
 
-    // Dùng populate để lấy thêm thông tin tên phòng
-    const danhSach = await VatTu.find(query).populate("phong", "tenPhong");
-    res.status(200).json(danhSach);
+    if (search) {
+      query.$or = [
+        { maVT: { $regex: search, $options: "i" } },
+        { tenVT: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Chỉ thêm điều kiện lọc nếu tinhTrang tồn tại VÀ không phải là chữ "Tất cả"
+    if (tinhTrang && tinhTrang.trim() !== "" && tinhTrang !== "Tất cả") {
+      // Decode để phòng trường hợp chữ tiếng Việt bị mã hóa trên URL
+      query.tinhTrang = decodeURIComponent(tinhTrang);
+    }
+
+    if (phongId) {
+      query.phong = phongId;
+    }
+
+    const totalRecords = await VatTu.countDocuments(query);
+    const cappedTotal = totalRecords > 100 ? 100 : totalRecords;
+
+    const danhSach = await VatTu.find(query)
+      .populate("phong", "tenPhong")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: danhSach,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(cappedTotal / limit),
+        totalItems: cappedTotal,
+      },
+    });
   } catch (error) {
     res
       .status(500)
@@ -20,42 +56,38 @@ export const layDanhSachVatTu = async (req, res) => {
   }
 };
 
-// Thêm vật tư mới vào một phòng
+// 2. Thêm vật tư mới
 export const themVatTu = async (req, res) => {
   try {
-    const { maVT, tenVT, tinhTrang, phongId } = req.body;
+    // Sửa phongId thành phong để khớp với Frontend
+    const { maVT, tenVT, tinhTrang, phong } = req.body;
 
-    // Kiểm tra xem phòng có tồn tại không
-    const phong = await Phong.findById(phongId);
-    if (!phong) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy phòng để thêm vật tư!" });
+    // Kiểm tra phòng tồn tại
+    const checkPhong = await Phong.findById(phong);
+    if (!checkPhong) {
+      return res.status(404).json({ message: "Không tìm thấy phòng này!" });
     }
 
     const vatTuMoi = new VatTu({
       maVT,
       tenVT,
       tinhTrang: tinhTrang || "Tốt",
-      phong: phongId,
+      phong, // Lưu vào field 'phong' của Model
     });
 
-    const vatTuDaLuu = await vatTuMoi.save();
+    await vatTuMoi.save();
     res
       .status(201)
-      .json({ message: "Thêm vật tư thành công!", vatTu: vatTuDaLuu });
+      .json({ message: "Thêm vật tư thành công!", data: vatTuMoi });
   } catch (error) {
-    // Nếu lỗi trùng mã VT (unique), báo lỗi cụ thể
     if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ message: "Mã vật tư này đã tồn tại trong hệ thống!" });
+      return res.status(400).json({ message: "Mã vật tư này đã tồn tại!" });
     }
-    res.status(500).json({ message: "Lỗi khi thêm vật tư: " + error.message });
+    res.status(500).json({ message: "Lỗi Server: " + error.message });
   }
 };
 
-// Cập nhật tình trạng vật tư (VD: Báo hỏng, đang sửa, đã thanh lý)
+// 3. Cập nhật tình trạng vật tư
 export const capNhatTinhTrang = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,21 +97,31 @@ export const capNhatTinhTrang = async (req, res) => {
       id,
       { tinhTrang },
       { new: true },
-    );
+    ).populate("phong", "tenPhong");
 
     if (!vatTuCapNhat) {
-      return res.status(404).json({ message: "Không tìm thấy vật tư này!" });
+      return res.status(404).json({ message: "Không tìm thấy vật tư!" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Cập nhật tình trạng thành công!",
-        vatTu: vatTuCapNhat,
-      });
+    res.status(200).json({
+      message: "Cập nhật thành công!",
+      data: vatTuCapNhat,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi cập nhật vật tư: " + error.message });
+    res.status(500).json({ message: "Lỗi khi cập nhật: " + error.message });
+  }
+};
+
+// 4. Xóa vật tư (Cần thiết cho nút thùng rác ở Frontend)
+export const xoaVatTu = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ketQua = await VatTu.findByIdAndDelete(id);
+    if (!ketQua)
+      return res.status(404).json({ message: "Vật tư không tồn tại!" });
+
+    res.status(200).json({ message: "Xóa vật tư thành công!" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi xóa vật tư: " + error.message });
   }
 };

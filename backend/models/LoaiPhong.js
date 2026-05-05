@@ -14,6 +14,11 @@ const loaiPhongSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    sucChua: {
+      type: Number,
+      required: true,
+      min: 1, // Sức chứa ít nhất phải là 1 người
+    },
   },
   { timestamps: true }, // Tự động thêm createdAt và updatedAt
 );

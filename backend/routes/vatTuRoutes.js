@@ -4,6 +4,7 @@ import {
   layDanhSachVatTu,
   themVatTu,
   capNhatTinhTrang,
+  xoaVatTu,
 } from "../controllers/vatTuController.js";
 
 const router = express.Router();
@@ -11,10 +12,13 @@ const router = express.Router();
 // GET: /api/vattu -> Lấy danh sách (hỗ trợ ?phongId=...)
 router.get("/", layDanhSachVatTu);
 
-// POST: /api/vattu -> Thêm mới vật tư
-router.post("/", themVatTu);
+// POST: /api/vattu/tao -> Thêm mới vật tư
+router.post("/tao", themVatTu);
 
-// PUT: /api/vattu/:id/tinh-trang -> Cập nhật tình trạng
-router.put("/:id/tinh-trang", capNhatTinhTrang);
+// PUT: /api/vattu/sua/:id -> Cập nhật tình trạng
+router.put("/sua/:id", capNhatTinhTrang);
+
+// DELETE: /api/vattu/xoa/:id -> Xóa vật tư
+router.delete("/xoa/:id", xoaVatTu);
 
 export default router;

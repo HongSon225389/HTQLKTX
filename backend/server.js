@@ -10,6 +10,10 @@ import vatTuRoutes from "./routes/vatTuRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import { xacThucToken } from "./middlewares/authMiddleware.js";
 import taoAdminMacDinh from "./config/setupAdmin.js";
+import hopDongRoutes from "./routes/hopDongRoutes.js";
+import thongKeRoutes from "./routes/thongKeRoutes.js";
+import loaiPhongRoutes from "./routes/loaiPhongRoutes.js";
+import logRaVaoRoutes from "./routes/logRaVaoRoutes.js";
 
 // Nạp các biến môi trường từ file .env
 dotenv.config();
@@ -30,20 +34,27 @@ app.use(express.json()); // Cho phép server đọc dữ liệu JSON từ body c
 app.use("/api/auth", authRoutes);
 
 // Gắn route API quản lý phòng
-app.use("/api/phong", phongRoutes);
+app.use("/api/phong", xacThucToken, phongRoutes);
 // Gắn route API quản lý sinh viên
-app.use("/api/sinhvien", sinhVienRoutes);
+app.use("/api/sinhvien", xacThucToken, sinhVienRoutes);
 // Gắn route API quản lý điện nước
-app.use("/api/dien-nuoc", dienNuocRoutes);
+app.use("/api/dien-nuoc", xacThucToken, dienNuocRoutes);
 // Gắn route API quản lý hóa đơn
-app.use("/api/hoadon", hoaDonRoutes);
+app.use("/api/hoadon", xacThucToken, hoaDonRoutes);
 // Gắn route API quản lý vật tư
-app.use("/api/vattu", vatTuRoutes);
+app.use("/api/vattu", xacThucToken, vatTuRoutes);
 
-app.get("/", (req, res) => {
-  res.send("API Quản lý Ký túc xá đang hoạt động ổn định!");
-});
+// Gắn route API quản lý hợp đồng
+app.use("/api/hopdong", xacThucToken, hopDongRoutes);
 
+// Gắn route API thống kê dashboard
+app.use("/api/thong-ke", xacThucToken, thongKeRoutes);
+
+// Gắn route API quản lý loại phòng
+app.use("/api/loaiphong", xacThucToken, loaiPhongRoutes);
+
+// Gắn route API quản lý log ra vào
+app.use("/api/log-ra-vao", logRaVaoRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

@@ -5,7 +5,9 @@ import Phong from "../models/Phong.js";
 export const layDanhSachPhong = async (req, res) => {
   try {
     // Dùng populate để lấy chi tiết thông tin LoaiPhong thay vì chỉ lấy cái ID khô khan
-    const danhSachPhong = await Phong.find().populate("loaiPhong");
+    const danhSachPhong = await Phong.find()
+      .populate("loaiPhong")
+      .sort({ tenPhong: 1 }); // Sắp xếp theo tên phòng A-Z
     res.status(200).json(danhSachPhong);
   } catch (error) {
     res
@@ -65,5 +67,23 @@ export const capNhatPhong = async (req, res) => {
     res
       .status(500)
       .json({ message: "Lỗi khi cập nhật phòng", error: error.message });
+  }
+};
+
+// 4. Xóa phòng
+export const xoaPhong = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const phongDaXoa = await Phong.findByIdAndDelete(id);
+
+    if (!phongDaXoa) {
+      return res.status(404).json({ message: "Không tìm thấy phòng để xóa!" });
+    }
+
+    res.status(200).json({ message: "Xóa phòng thành công!" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Lỗi khi xóa phòng", error: error.message });
   }
 };

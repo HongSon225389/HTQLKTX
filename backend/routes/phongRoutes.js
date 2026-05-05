@@ -4,6 +4,7 @@ import {
   layDanhSachPhong,
   themPhongMoi,
   capNhatPhong,
+  xoaPhong,
 } from "../controllers/phongController.js";
 
 const router = express.Router();
@@ -16,5 +17,8 @@ router.post("/", themPhongMoi);
 
 // PUT: /api/phong/:id -> Cập nhật phòng theo ID
 router.put("/:id", capNhatPhong);
+
+//DELETE: /api/phong/:id -> Xóa phòng theo ID (nếu cần, chưa có trong controller)
+router.delete("/:id", xoaPhong);
 
 export default router;

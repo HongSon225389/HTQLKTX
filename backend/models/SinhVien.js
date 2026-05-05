@@ -1,4 +1,3 @@
-// backend/models/SinhVien.js
 import mongoose from "mongoose";
 
 const sinhVienSchema = new mongoose.Schema(
@@ -7,7 +6,7 @@ const sinhVienSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true, // VD: '20201234'
+      trim: true,
     },
     hoTen: {
       type: String,
@@ -27,8 +26,8 @@ const sinhVienSchema = new mongoose.Schema(
     },
     phong: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Phong", // Khóa ngoại liên kết tới Phòng
-      default: null, // Có thể null nếu sinh viên vừa đăng ký nhưng chưa xếp phòng
+      ref: "Phong",
+      default: null,
     },
   },
   { timestamps: true },

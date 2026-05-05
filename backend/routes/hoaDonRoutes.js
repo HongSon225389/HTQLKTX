@@ -3,6 +3,7 @@ import express from "express";
 import {
   layDanhSachHoaDon,
   thanhToanHoaDon,
+  taoHoaDon,
 } from "../controllers/hoaDonController.js";
 
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 router.get("/", layDanhSachHoaDon);
 
 // PUT: /api/hoadon/:id/thanh-toan -> Cập nhật trạng thái thanh toán
-router.put("/:id/thanh-toan", thanhToanHoaDon);
+router.put("/pay/:id", thanhToanHoaDon);
 
+// POST: /api/hoadon/tao -> Tạo mới hóa đơn
+router.post("/tao", taoHoaDon); //
 export default router;
