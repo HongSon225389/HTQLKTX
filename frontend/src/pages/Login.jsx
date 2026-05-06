@@ -34,7 +34,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6 font-sans">
       <div className="bg-white p-12 rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] w-full max-w-md border border-gray-50 relative overflow-hidden">
-        {/* Trang trí nền nhẹ */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
 
         <div className="text-center mb-12 relative">
@@ -50,7 +49,6 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6 relative">
-          {/* Ô nhập Tài khoản */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-gray-400 uppercase ml-5 tracking-widest">
               Tài khoản quản trị
@@ -63,7 +61,6 @@ export default function Login() {
                 required
                 className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[1.5rem] py-4.5 pl-14 pr-6 font-bold text-gray-700 outline-none transition-all"
                 value={formData.taiKhoan}
-                // Cập nhật đúng trường taiKhoan
                 onChange={(e) =>
                   setFormData({ ...formData, taiKhoan: e.target.value })
                 }
@@ -71,7 +68,6 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Ô nhập Mật khẩu */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-gray-400 uppercase ml-5 tracking-widest">
               Mật khẩu bảo mật
@@ -84,7 +80,6 @@ export default function Login() {
                 required
                 className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-[1.5rem] py-4.5 pl-14 pr-6 font-bold text-gray-700 outline-none transition-all"
                 value={formData.matKhau}
-                // Cập nhật đúng trường matKhau
                 onChange={(e) =>
                   setFormData({ ...formData, matKhau: e.target.value })
                 }
