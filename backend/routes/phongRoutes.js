@@ -5,15 +5,15 @@ import {
   capNhatPhong,
   xoaPhong,
 } from "../controllers/phongController.js";
-
+import { xacThucToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.get("/", layDanhSachPhong);
+router.get("/", xacThucToken, layDanhSachPhong);
 
-router.post("/", themPhongMoi);
+router.post("/", xacThucToken, themPhongMoi);
 
-router.put("/:id", capNhatPhong);
+router.put("/:id", xacThucToken, capNhatPhong);
 
-router.delete("/:id", xoaPhong);
+router.delete("/:id", xacThucToken, xoaPhong);
 
 export default router;

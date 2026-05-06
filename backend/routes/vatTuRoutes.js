@@ -5,15 +5,15 @@ import {
   capNhatTinhTrang,
   xoaVatTu,
 } from "../controllers/vatTuController.js";
-
+import { xacThucToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.get("/", layDanhSachVatTu);
+router.get("/", xacThucToken, layDanhSachVatTu);
 
-router.post("/tao", themVatTu);
+router.post("/tao", xacThucToken, themVatTu);
 
-router.put("/sua/:id", capNhatTinhTrang);
+router.put("/sua/:id", xacThucToken, capNhatTinhTrang);
 
-router.delete("/xoa/:id", xoaVatTu);
+router.delete("/xoa/:id", xacThucToken, xoaVatTu);
 
 export default router;

@@ -6,17 +6,17 @@ import {
   layChiTietHopDong,
   giaHanHopDong,
 } from "../controllers/hopDongController.js";
-
+import { xacThucToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.get("/", layDanhSachHopDong);
+router.get("/", xacThucToken, layDanhSachHopDong);
 
-router.get("/:id", layChiTietHopDong);
+router.get("/:id", xacThucToken, layChiTietHopDong);
 
-router.post("/tao", taoHopDongMoi);
+router.post("/tao", xacThucToken, taoHopDongMoi);
 
-router.put("/thanh-ly/:id", thanhLyHopDong);
+router.put("/thanh-ly/:id", xacThucToken, thanhLyHopDong);
 
-router.put("/gia-han/:id", giaHanHopDong);
+router.put("/gia-han/:id", xacThucToken, giaHanHopDong);
 
 export default router;

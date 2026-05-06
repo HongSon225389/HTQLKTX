@@ -1,8 +1,12 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
-// Các file này bạn tạo file rỗng tương ứng trong folder pages nhé
 import Phong from "./pages/Phong";
 import BaoCao from "./pages/BaoCao";
 import SinhVien from "./pages/SinhVien";
@@ -13,11 +17,23 @@ import Login from "./pages/Login";
 import VatTu from "./pages/VatTu";
 import LogRaVao from "./pages/LogRaVao";
 
+const ProtectedRoute = () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <MainLayout />;
+};
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/" element={<ProtectedRoute />}>
           <Route index element={<Dashboard />} />
           <Route path="phong" element={<Phong />} />
           <Route path="sinh-vien" element={<SinhVien />} />
@@ -26,9 +42,10 @@ function App() {
           <Route path="bao-cao" element={<BaoCao />} />
           <Route path="hop-dong" element={<HopDong />} />
           <Route path="vat-tu" element={<VatTu />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/log-ra-vao" element={<LogRaVao />} />
+          <Route path="log-ra-vao" element={<LogRaVao />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

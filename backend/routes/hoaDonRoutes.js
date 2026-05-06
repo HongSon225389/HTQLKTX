@@ -4,12 +4,12 @@ import {
   thanhToanHoaDon,
   taoHoaDon,
 } from "../controllers/hoaDonController.js";
-
+import { xacThucToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.get("/", layDanhSachHoaDon);
+router.get("/", xacThucToken, layDanhSachHoaDon);
 
-router.put("/pay/:id", thanhToanHoaDon);
+router.put("/pay/:id", xacThucToken, thanhToanHoaDon);
 
-router.post("/tao", taoHoaDon); //
+router.post("/tao", xacThucToken, taoHoaDon);
 export default router;
