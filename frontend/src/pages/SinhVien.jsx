@@ -11,6 +11,7 @@ import {
   FaEdit,
   FaBirthdayCake,
   FaTransgender,
+  FaFileContract,
 } from "react-icons/fa";
 
 export default function SinhVien() {
