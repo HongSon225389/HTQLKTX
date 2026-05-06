@@ -1,4 +1,3 @@
-// backend/models/Admin.js
 import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema(
@@ -19,7 +18,7 @@ const adminSchema = new mongoose.Schema(
     },
     vaiTro: {
       type: String,
-      default: "Quản trị viên", // Có thể mở rộng thêm 'Nhân viên', 'Kế toán'... sau này
+      default: "Quản trị viên",
     },
   },
   { timestamps: true },

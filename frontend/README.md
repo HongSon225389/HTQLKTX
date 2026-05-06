@@ -1,16 +1,35 @@
-# React + Vite
+# 🏢 Hệ thống Quản lý Ký túc xá (KTX 2.0)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dự án Hệ thống Quản lý Ký túc xá (MERN Stack) giúp Ban quản lý số hóa quy trình tiếp nhận sinh viên, quản lý cơ sở vật chất và tự động hóa việc tính toán hóa đơn điện nước.
 
-Currently, two official plugins are available:
+## 🛠 Yêu cầu hệ thống (Prerequisites)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Trước khi cài đặt, hãy đảm bảo máy tính của bạn đã cài đặt các phần mềm sau:
 
-## React Compiler
+- [Node.js](https://nodejs.org/) (Phiên bản v16.x trở lên)
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (Hoặc MongoDB Compass chạy local)
+- Git
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🚀 Hướng dẫn Cài đặt & Khởi chạy
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Dự án được chia thành 2 phần độc lập: `backend` (Node.js/Express) và `frontend` (ReactJS). Bạn cần mở **2 cửa sổ Terminal** để chạy song song 2 phần này.
+
+### Bước 1: Cài đặt và cấu hình Backend
+
+1. Mở Terminal 1 và di chuyển vào thư mục backend:
+   ```bash
+   cd backend
+   npm install
+   npm run dev
+   ```
+
+### Bước 2: Cài đặt và cấu hình Frontend
+
+1. Mở Terminal 1 và di chuyển vào thư mục frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```

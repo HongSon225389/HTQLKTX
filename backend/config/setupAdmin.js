@@ -1,20 +1,17 @@
-// backend/config/setupAdmin.js
 import Admin from "../models/Admin.js";
 import bcrypt from "bcryptjs";
 
 const taoAdminMacDinh = async () => {
   try {
-    // Đếm xem trong DB đã có tài khoản Admin nào chưa
     const soLuongAdmin = await Admin.countDocuments();
 
-    // Nếu chưa có ai (DB mới tinh), thì tự động tạo 1 cái cố định
     if (soLuongAdmin === 0) {
       console.log(
         "Chưa có Admin nào trong hệ thống. Đang tạo tài khoản mặc định...",
       );
 
       const salt = await bcrypt.genSalt(10);
-      const matKhauMaHoa = await bcrypt.hash("admin123", salt); // Mật khẩu mặc định
+      const matKhauMaHoa = await bcrypt.hash("admin123", salt);
 
       const adminMacDinh = new Admin({
         taiKhoan: "admin",

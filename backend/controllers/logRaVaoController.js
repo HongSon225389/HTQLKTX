@@ -1,4 +1,3 @@
-// backend/controllers/logRaVaoController.js
 import LogRaVao from "../models/LogRaVao.js";
 import SinhVien from "../models/SinhVien.js";
 
@@ -31,15 +30,13 @@ export const taoLogNgauNhien = async (req, res) => {
 
     const logs = [];
     for (let i = 0; i < 20; i++) {
-      const isStranger = Math.floor(Math.random() * 10) === 0; // Tỉ lệ 1/10 (10%)
+      const isStranger = Math.floor(Math.random() * 10) === 0;
 
-      // Random ngày trong tuần qua
       const now = new Date();
       const baseDate = new Date(
         now.getTime() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
       );
 
-      // Random giờ ra (Từ 6h sáng đến 21h tối)
       const gioRa = 6 + Math.floor(Math.random() * 15);
       baseDate.setHours(gioRa, Math.floor(Math.random() * 60), 0);
       const thoiGianRa = new Date(baseDate);
@@ -47,9 +44,8 @@ export const taoLogNgauNhien = async (req, res) => {
       let thoiGianVao = null;
       let ghiChu = "Chưa về";
 
-      // 80% là đã về
       if (Math.random() > 0.2) {
-        const gioVao = gioRa + 1 + Math.floor(Math.random() * 5); // Về sau 1-5 tiếng
+        const gioVao = gioRa + 1 + Math.floor(Math.random() * 5);
         const vaoDate = new Date(baseDate);
         vaoDate.setHours(gioVao, Math.floor(Math.random() * 60), 0);
         thoiGianVao = new Date(vaoDate);
@@ -92,7 +88,7 @@ export const taoLogNgauNhien = async (req, res) => {
   }
 };
 
-// 3. Xóa trắng dữ liệu (Để test lại)
+// 3. Xóa trắng dữ liệu
 export const xoaTatCaLog = async (req, res) => {
   try {
     await LogRaVao.deleteMany({});

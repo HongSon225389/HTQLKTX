@@ -19,11 +19,9 @@ export default function Phong() {
   const [danhSachLoaiPhong, setDanhSachLoaiPhong] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // --- States cho Tìm kiếm và Lọc ---
-  const [tuKhoa, setTuKhoa] = useState(""); // Tìm theo số phòng
-  const [locTrangThai, setLocTrangThai] = useState(""); // Lọc theo tình trạng
+  const [tuKhoa, setTuKhoa] = useState("");
+  const [locTrangThai, setLocTrangThai] = useState("");
 
-  // States cho Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -272,7 +270,7 @@ export default function Phong() {
         </div>
       )}
 
-      {/* --- MODAL (Giữ nguyên) --- */}
+      {/* --- MODAL  --- */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex justify-center items-center z-[100] p-4">
           <div className="bg-white rounded-[2rem] p-10 w-full max-w-md shadow-2xl relative animate-zoomIn">

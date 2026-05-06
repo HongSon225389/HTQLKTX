@@ -123,7 +123,6 @@ export default function LogRaVao() {
           >
             <option value="Tất cả">Tất cả trạng thái</option>
             <option value="Bình thường">✅ Bình thường</option>
-            {/* ĐÃ FIX LỖI DẤU ">" Ở DÒNG DƯỚI ĐÂY */}
             <option value="Về muộn">⚠️ Về muộn (&gt;22h)</option>
             <option value="Chưa về">⏳ Chưa về</option>
             <option value="Người lạ">🚫 Người lạ</option>

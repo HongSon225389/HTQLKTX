@@ -3,7 +3,6 @@ import axios from "axios";
 import { FaUserShield, FaLock, FaUser, FaSignInAlt } from "react-icons/fa";
 
 export default function Login() {
-  // 1. Khai báo state khớp với các trường trong Postman: taiKhoan và matKhau
   const [formData, setFormData] = useState({
     taiKhoan: "",
     matKhau: "",
@@ -12,23 +11,19 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // 2. Gửi yêu cầu đến đúng route: /api/auth/dang-nhap
       const res = await axios.post(
         "http://localhost:5000/api/auth/dang-nhap",
         formData,
       );
 
       if (res.data.token) {
-        // 3. Lưu token vào localStorage để các trang khác (Dashboard, SinhVien...) sử dụng
         localStorage.setItem("token", res.data.token);
 
         alert("Đăng nhập thành công!");
 
-        // 4. Chuyển hướng về trang chủ
         window.location.href = "/";
       }
     } catch (error) {
-      // Hiển thị thông báo lỗi chi tiết từ Backend (ví dụ: "Sai tài khoản hoặc mật khẩu")
       alert(
         error.response?.data?.message ||
           "Đăng nhập thất bại. Vui lòng kiểm tra lại!",

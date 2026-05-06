@@ -19,7 +19,6 @@ export default function Sidebar() {
     { path: "/sinh-vien", name: "Quản lý sinh viên", icon: <FaUserGraduate /> },
     { path: "/hop-dong", name: "Quản lý hợp đồng", icon: <FaFileContract /> },
     { path: "/dien-nuoc", name: "Quản lý điện nước", icon: <FaLightbulb /> },
-    // --- Thêm mục Hóa đơn vào đây ---
     { path: "/hoadon", name: "Quản lý hóa đơn", icon: <FaFileInvoiceDollar /> },
     { path: "/vat-tu", name: "Cơ sở vật chất", icon: <FaTools /> },
     { path: "/log-ra-vao", name: "Log ra/vào KTX", icon: <FaClipboardList /> },

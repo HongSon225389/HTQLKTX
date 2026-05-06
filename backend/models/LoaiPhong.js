@@ -1,4 +1,3 @@
-// backend/models/LoaiPhong.js
 import mongoose from "mongoose";
 
 const loaiPhongSchema = new mongoose.Schema(
@@ -7,7 +6,7 @@ const loaiPhongSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true, // VD: 'Phòng 4 người', 'Phòng 8 người Vip'
+      trim: true,
     },
     giaTien: {
       type: Number,
@@ -17,10 +16,10 @@ const loaiPhongSchema = new mongoose.Schema(
     sucChua: {
       type: Number,
       required: true,
-      min: 1, // Sức chứa ít nhất phải là 1 người
+      min: 1,
     },
   },
-  { timestamps: true }, // Tự động thêm createdAt và updatedAt
+  { timestamps: true },
 );
 
 export default mongoose.model("LoaiPhong", loaiPhongSchema);

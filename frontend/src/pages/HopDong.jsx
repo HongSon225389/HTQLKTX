@@ -22,12 +22,10 @@ export default function HopDong() {
   const [filterStatus, setFilterStatus] = useState("Tất cả");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // --- States Phân trang ---
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [itemsPerPage] = useState(10); // Bạn có thể sửa thành 20 nếu muốn
+  const [itemsPerPage] = useState(10);
 
-  // --- States Gia hạn ---
   const [isGiaHanModalOpen, setIsGiaHanModalOpen] = useState(false);
   const [selectedHD, setSelectedHD] = useState(null);
   const [giaHanForm, setGiaHanForm] = useState({
@@ -48,7 +46,7 @@ export default function HopDong() {
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
-  // Tải dữ liệu (Gửi kèm page và limit)
+  // Tải dữ liệu
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -79,9 +77,9 @@ export default function HopDong() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]); // Tự động load lại khi đổi trang
+  }, [currentPage]);
 
-  // Logic Lọc (Lưu ý: Tìm kiếm này chỉ áp dụng trên dữ liệu đang hiển thị ở trang đó)
+  // Logic Lọc
   const filteredContracts = contracts.filter((item) => {
     const matchesStatus =
       filterStatus === "Tất cả" || item.trangThai === filterStatus;
@@ -157,7 +155,7 @@ export default function HopDong() {
 
   return (
     <div className="w-full pb-10 px-4">
-      {/* Header & Search Bar (Giữ nguyên) */}
+      {/* Header & Search Bar */}
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-black text-gray-800 flex items-center gap-3">
           <FaFileContract className="text-blue-600" /> QUẢN LÝ HỢP ĐỒNG

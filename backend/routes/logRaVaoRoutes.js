@@ -1,4 +1,3 @@
-// backend/routes/logRaVaoRoutes.js
 import express from "express";
 import {
   layDanhSachLog,

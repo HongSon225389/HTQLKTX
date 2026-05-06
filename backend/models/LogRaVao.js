@@ -1,4 +1,3 @@
-// backend/models/LogRaVao.js
 import mongoose from "mongoose";
 
 const logRaVaoSchema = new mongoose.Schema(
@@ -15,7 +14,7 @@ const logRaVaoSchema = new mongoose.Schema(
       default: null,
     },
     thoiGianRa: { type: Date, required: true },
-    thoiGianVao: { type: Date, default: null }, // Null = Chưa về
+    thoiGianVao: { type: Date, default: null },
     ghiChu: {
       type: String,
       enum: ["Bình thường", "Về muộn", "Người lạ", "Chưa về"],

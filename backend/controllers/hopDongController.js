@@ -1,4 +1,3 @@
-// backend/controllers/hopDongController.js
 import HopDong from "../models/HopDong.js";
 import Phong from "../models/Phong.js";
 import SinhVien from "../models/SinhVien.js";
@@ -13,7 +12,7 @@ export const layDanhSachHopDong = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // 2. Tự động cập nhật trạng thái "Hết hạn" (Giữ nguyên logic của bạn)
+    // 2. Tự động cập nhật trạng thái "Hết hạn"
     const hdHetHan = await HopDong.find({
       trangThai: "Có hiệu lực",
       ngayKetThuc: { $lt: homNay },
@@ -44,7 +43,7 @@ export const layDanhSachHopDong = async (req, res) => {
     const ds = await HopDong.find()
       .populate("sinhVien", "hoTen maSV email")
       .populate("phong", "tenPhong loaiPhong")
-      .sort({ createdAt: -1 }) // Mới nhất lên đầu
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -76,7 +75,7 @@ export const layChiTietHopDong = async (req, res) => {
   }
 };
 
-// 3. TẠO HỢP ĐỒNG MỚI (QUAN TRỌNG)
+// 3. TẠO HỢP ĐỒNG MỚI
 export const taoHopDongMoi = async (req, res) => {
   try {
     const {
@@ -129,12 +128,10 @@ export const taoHopDongMoi = async (req, res) => {
     });
     await hopDongMoi.save();
 
-    // 5. CẬP NHẬT SINH VIÊN (Đây là bước giúp trang Sinh viên không bị trắng)
-    // Phải gán ID phòng vào trường 'phong' của Sinh viên
+    // 5. CẬP NHẬT SINH VIÊN
     await SinhVien.findByIdAndUpdate(sinhVienId, { phong: phongId });
 
     // 6. CẬP NHẬT TRẠNG THÁI PHÒNG
-    // Nếu sau khi thêm, phòng đủ người thì chuyển sang "Đã đầy", ngược lại là "Đang ở"
     phong.trangThai = soSVHienTai + 1 >= sucChuaToiDa ? "Đã đầy" : "Đang ở";
     await phong.save();
 
@@ -148,7 +145,7 @@ export const taoHopDongMoi = async (req, res) => {
   }
 };
 
-// 4. THANH LÝ HỢP ĐỒNG (Hàm cũ bạn đã viết - đã tối ưu)
+// 4. THANH LÝ HỢP ĐỒNG
 export const thanhLyHopDong = async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,14 +162,11 @@ export const thanhLyHopDong = async (req, res) => {
     const phongId = hopDong.phong;
     const sinhVienId = hopDong.sinhVien;
 
-    // Cập nhật hợp đồng
     hopDong.trangThai = "Đã thanh lý";
     await hopDong.save();
 
-    // Xóa phòng khỏi sinh viên
     await SinhVien.findByIdAndUpdate(sinhVienId, { phong: null });
 
-    // Cập nhật lại phòng
     const soSVConLai = await SinhVien.countDocuments({ phong: phongId });
     const phong = await Phong.findById(phongId);
     phong.trangThai = soSVConLai === 0 ? "Trống" : "Đang ở";
@@ -208,12 +202,12 @@ export const giaHanHopDong = async (req, res) => {
     hopDong.trangThai = "Có hiệu lực";
     await hopDong.save();
 
-    // 2. Gán lại phòng cho Sinh viên (Vì khi hết hạn chúng ta đã lỡ gỡ phòng ra)
+    // 2. Gán lại phòng cho Sinh viên
     await SinhVien.findByIdAndUpdate(hopDong.sinhVien, {
       phong: hopDong.phong._id,
     });
 
-    // 3. Cập nhật lại trạng thái Phòng (Tăng số người ở thực tế)
+    // 3. Cập nhật lại trạng thái Phòng
     const phong = await Phong.findById(hopDong.phong._id).populate("loaiPhong");
     const soSVHienTai = await SinhVien.countDocuments({
       phong: hopDong.phong._id,

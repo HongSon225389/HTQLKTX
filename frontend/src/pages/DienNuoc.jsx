@@ -32,7 +32,6 @@ export default function DienNuoc() {
     donGiaNuoc: 25000,
   });
 
-  // Cấu hình Header cho Axios (Dùng Token của bạn)
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -72,7 +71,6 @@ export default function DienNuoc() {
     if (!phongId) return;
 
     try {
-      // Gọi API lấy chỉ số mới nhất của phòng này từ tháng trước
       const res = await axios.get(
         `http://localhost:5000/api/dien-nuoc/latest/${phongId}`,
         config,
@@ -83,7 +81,7 @@ export default function DienNuoc() {
         ...prev,
         dienCu: res.data.dienMoi || 0,
         nuocCu: res.data.nuocMoi || 0,
-        dienMoi: res.data.dienMoi || 0, // Gợi ý số mới bằng số cũ
+        dienMoi: res.data.dienMoi || 0,
         nuocMoi: res.data.nuocMoi || 0,
       }));
     } catch (error) {
@@ -110,7 +108,7 @@ export default function DienNuoc() {
       );
       alert("Chốt số & Tạo hóa đơn thành công!");
       setIsModalOpen(false);
-      fetchData(); // Reload bảng
+      fetchData();
     } catch (error) {
       alert(error.response?.data?.message || "Lỗi khi chốt số");
     }

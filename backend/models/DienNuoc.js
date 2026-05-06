@@ -1,4 +1,3 @@
-// backend/models/DienNuoc.js
 import mongoose from "mongoose";
 
 const dienNuocSchema = new mongoose.Schema(
@@ -9,12 +8,12 @@ const dienNuocSchema = new mongoose.Schema(
       ref: "Phong",
       required: true,
     },
-    thangNam: { type: String, required: true }, // VD: '04/2026' hoặc '2026-04'
+    thangNam: { type: String, required: true },
     dienCu: { type: Number, required: true, min: 0 },
     dienMoi: { type: Number, required: true, min: 0 },
     nuocCu: { type: Number, required: true, min: 0 },
     nuocMoi: { type: Number, required: true, min: 0 },
-    donGiaDien: { type: Number, required: true, default: 3500 }, // Giá mặc định có thể đổi
+    donGiaDien: { type: Number, required: true, default: 3500 },
     donGiaNuoc: { type: Number, required: true, default: 25000 },
     tienDien: { type: Number },
     tienNuoc: { type: Number },

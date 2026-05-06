@@ -7,7 +7,6 @@ import { xacThucToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// Ví dụ cấu hình route
 router.get("/dashboard", xacThucToken, layThongKeDashboard);
 router.get("/bieu-do", xacThucToken, layDuLieuBieuDo);
 

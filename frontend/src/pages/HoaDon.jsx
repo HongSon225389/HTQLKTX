@@ -13,7 +13,7 @@ import {
 export default function HoaDon() {
   const [danhSachHD, setDanhSachHD] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [trangThaiFilter, setTrangThaiFilter] = useState(""); // Rỗng = Tất cả
+  const [trangThaiFilter, setTrangThaiFilter] = useState("");
   const [tuKhoa, setTuKhoa] = useState("");
 
   const token = localStorage.getItem("token");
@@ -23,7 +23,6 @@ export default function HoaDon() {
   const fetchHoaDon = async () => {
     try {
       setLoading(true);
-      // Gọi API theo query bạn đã viết ở Backend
       const res = await axios.get(
         `http://localhost:5000/api/hoadon?trangThai=${trangThaiFilter}`,
         config,
@@ -38,7 +37,7 @@ export default function HoaDon() {
 
   useEffect(() => {
     fetchHoaDon();
-  }, [trangThaiFilter]); // Tự động load lại khi bấm chọn lọc trạng thái
+  }, [trangThaiFilter]);
 
   // --- 2. Xác nhận thanh toán ---
   const handleThanhToan = async (id) => {
@@ -50,7 +49,7 @@ export default function HoaDon() {
           config,
         );
         alert("Xác nhận thanh toán thành công!");
-        fetchHoaDon(); // Refresh lại danh sách
+        fetchHoaDon();
       } catch (e) {
         alert("Lỗi khi xử lý thanh toán");
       }
@@ -74,7 +73,6 @@ export default function HoaDon() {
   const handleInHoaDon = (hd) => {
     const printWindow = window.open("", "_blank", "width=850,height=900");
 
-    // Tính toán số lượng tiêu thụ
     const tieuThuDien = hd.dienMoi - hd.dienCu || 0;
     const tieuThuNuoc = hd.nuocMoi - hd.nuocCu || 0;
 

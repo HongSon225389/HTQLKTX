@@ -14,14 +14,13 @@ import {
 } from "react-icons/fa";
 
 export default function SinhVien() {
-  // --- States dữ liệu ---
   const [danhSachSV, setDanhSachSV] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tuKhoa, setTuKhoa] = useState("");
 
   // --- States Modal & Form ---
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal Thêm/Sửa
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // Modal Chi tiết
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -40,7 +39,6 @@ export default function SinhVien() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Backend trả về danh sách SV (hàm layDanhSachSV đã gộp thêm trường hopDong)
       const res = await axios.get("http://localhost:5000/api/sinhvien", config);
       setDanhSachSV(res.data);
     } catch (error) {
@@ -60,7 +58,7 @@ export default function SinhVien() {
     setIsDetailModalOpen(true);
   };
 
-  // --- 3. Xử lý Thêm/Sửa (Chỉ thông tin cá nhân) ---
+  // --- 3. Xử lý Thêm/Sửa ---
   const handleOpenEdit = (e, sv) => {
     e.stopPropagation();
     setIsEditMode(true);

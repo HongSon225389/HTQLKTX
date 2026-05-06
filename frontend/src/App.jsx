@@ -28,7 +28,6 @@ function App() {
           <Route path="vat-tu" element={<VatTu />} />
           <Route path="/login" element={<Login />} />
           <Route path="/log-ra-vao" element={<LogRaVao />} />
-          {/* Thêm các Route khác vào đây sau */}
         </Route>
       </Routes>
     </Router>

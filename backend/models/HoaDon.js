@@ -15,7 +15,6 @@ const hoaDonSchema = new mongoose.Schema(
     },
     kyThanhToan: { type: String, required: true },
 
-    // --- CÁC TRƯỜNG BỔ SUNG ĐỂ LƯU CHI TIẾT CHỈ SỐ ---
     dienCu: { type: Number, default: 0 },
     dienMoi: { type: Number, default: 0 },
     tienDien: { type: Number, default: 0 },
@@ -25,7 +24,6 @@ const hoaDonSchema = new mongoose.Schema(
     tienNuoc: { type: Number, default: 0 },
 
     tienPhong: { type: Number, default: 0 },
-    // ----------------------------------------------
 
     tongTien: { type: Number, required: true },
     trangThai: {

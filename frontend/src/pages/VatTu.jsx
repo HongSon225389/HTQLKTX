@@ -18,41 +18,35 @@ import { useNavigate } from "react-router-dom";
 export default function VatTu() {
   const navigate = useNavigate();
 
-  // --- States Dữ liệu ---
   const [items, setItems] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("Tất cả");
 
-  // --- States Phân trang ---
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // --- States Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     maVT: "",
     tenVT: "",
-    phong: "", // Key này phải khớp với Backend
+    phong: "",
     tinhTrang: "Tốt",
   });
 
-  // --- Cấu hình Auth ---
   const token = localStorage.getItem("token");
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
-  // 1. Hàm tải dữ liệu từ Server
   const fetchData = async () => {
     if (!token) return navigate("/login");
 
     try {
       setLoading(true);
-      // Gọi cả 2 cùng lúc
+
       const [resHD, resP] = await Promise.all([
         axios.get(
-          // BẠN CẦN THÊM &tinhTrang=${filterStatus} VÀO ĐƯỜNG DẪN NÀY:
           `http://localhost:5000/api/vattu?page=${currentPage}&search=${searchTerm}&tinhTrang=${filterStatus}`,
           config,
         ),
@@ -61,7 +55,7 @@ export default function VatTu() {
 
       setItems(resHD.data.data);
       setTotalPages(resHD.data.pagination.totalPages);
-      setRooms(resP.data); // Luôn nhận Array từ controller của bạn
+      setRooms(resP.data);
     } catch (error) {
       console.error("Lỗi:", error);
       if (error.response?.status === 401) navigate("/login");
@@ -70,16 +64,13 @@ export default function VatTu() {
     }
   };
 
-  // Tự động tải lại khi đổi trang hoặc đổi bộ lọc trạng thái
   useEffect(() => {
     fetchData();
   }, [currentPage, filterStatus, searchTerm]);
 
-  // 2. Xử lý Thêm mới
   const handleCreate = async (e) => {
     e.preventDefault();
 
-    // Kiểm tra nếu chưa chọn phòng thì báo lỗi ngay tại Frontend
     if (!formData.phong) {
       alert("Vui lòng chọn phòng lắp đặt thiết bị!");
       return;
@@ -96,12 +87,10 @@ export default function VatTu() {
       setFormData({ maVT: "", tenVT: "", phong: "", tinhTrang: "Tốt" });
       fetchData();
     } catch (error) {
-      // Hiện lỗi chi tiết từ Backend trả về
       alert(error.response?.data?.message || "Lỗi khi thêm vật tư");
     }
   };
 
-  // 3. Cập nhật Tình trạng (Báo hỏng/Đã sửa)
   const handleUpdateStatus = async (id, status) => {
     try {
       await axios.put(
@@ -115,7 +104,6 @@ export default function VatTu() {
     }
   };
 
-  // 4. Xóa Vật tư
   const handleDelete = async (id) => {
     if (
       window.confirm("Bạn có chắc chắn muốn xóa thiết bị này khỏi hệ thống?")
@@ -166,7 +154,7 @@ export default function VatTu() {
             className="w-full bg-white border border-gray-100 rounded-[1.5rem] py-4 pl-14 pr-5 font-bold text-gray-600 outline-none focus:shadow-md transition-all shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchData()} // Nhấn Enter để tìm
+            onKeyDown={(e) => e.key === "Enter" && fetchData()}
           />
         </div>
 
@@ -265,7 +253,6 @@ export default function VatTu() {
                           title="Thanh lý (Bỏ đi)"
                         >
                           <FaBox />{" "}
-                          {/* Bạn có thể import FaBox từ react-icons/fa nếu chưa có */}
                         </button>
                       </>
                     )}
@@ -281,7 +268,7 @@ export default function VatTu() {
                       </button>
                     )}
 
-                    {/* Nút XÓA HOÀN TOÀN KHỎI HỆ THỐNG (Luôn hiện) */}
+                    {/* Nút XÓA HOÀN TOÀN KHỎI HỆ THỐNG */}
                     <button
                       onClick={() => handleDelete(item._id)}
                       className="text-red-300 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition-all"

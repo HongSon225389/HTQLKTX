@@ -31,7 +31,7 @@ const hopDongSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    // Trường bổ sung: Chốt giá phòng tại thời điểm ký để tránh tranh chấp khi giá thị trường thay đổi
+
     giaPhongTaiThoiDiemKy: {
       type: Number,
       required: true,
@@ -44,10 +44,10 @@ const hopDongSchema = new mongoose.Schema(
     },
     daDongTien: {
       type: Boolean,
-      default: false, // Đánh dấu xem đã hoàn tất đóng tiền cọc/tiền tháng đầu chưa
+      default: false,
     },
     ghiChu: {
-      type: String, // Lưu thông tin bổ sung như tình trạng phòng khi nhận hoặc lý do thanh lý
+      type: String,
     },
   },
   { timestamps: true },
