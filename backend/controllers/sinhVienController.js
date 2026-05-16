@@ -160,9 +160,13 @@ export const capNhatSV = async (req, res) => {
     const svCapNhat = await SinhVien.findByIdAndUpdate(
       id,
       { hoTen, ngaySinh, gioiTinh, queQuan, phong: phongId },
-      { new: true },
+      { new: true, runValidators: true },
     );
-
+    if (!hoTen || hoTen.trim() === "") {
+      return res.status(400).json({
+        message: "Họ tên không được để trống",
+      });
+    }
     await HopDong.findOneAndUpdate(
       { sinhVien: id },
       { ngayBatDau, ngayKetThuc, tienCoc },
