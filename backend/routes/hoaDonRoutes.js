@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const hoadonController = require("../controllers/hoadonController");
+const hoadonController = require("../controllers/hoaDonController");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);

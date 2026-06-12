@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const taisanController = require("../controllers/taisanController");
+const taisanController = require("../controllers/taiSanController");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);
