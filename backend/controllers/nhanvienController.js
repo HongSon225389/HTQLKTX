@@ -129,7 +129,6 @@ exports.taoNhanVien = async (req, res) => {
 // =====================================
 exports.capNhatNhanVien = async (req, res) => {
   try {
-    // Check trùng mã NV khi update
     if (req.body.maNV) {
       const checkMaNV = await NhanVien.findOne({
         maNV: req.body.maNV,
