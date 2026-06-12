@@ -1,19 +1,70 @@
-import express from "express";
-import {
-  layDanhSachPhong,
-  themPhongMoi,
-  capNhatPhong,
-  xoaPhong,
-} from "../controllers/phongController.js";
-import { xacThucToken } from "../middlewares/authMiddleware.js";
+const express = require("express");
+
 const router = express.Router();
 
-router.get("/", xacThucToken, layDanhSachPhong);
+const phongController = require("../controllers/phongController");
 
-router.post("/", xacThucToken, themPhongMoi);
+const { protect, authorize } = require("../middlewares/auth");
 
-router.put("/:id", xacThucToken, capNhatPhong);
+// ====================================
+// Chỉ STUDENT
+// =====================================
+router.get(
+  "/my-room",
+  protect,
+  authorize("STUDENT"),
+  phongController.getMyRoom,
+);
 
-router.delete("/:id", xacThucToken, xoaPhong);
+// =====================================
+// PUBLIC
+// =====================================
 
-export default router;
+router.get("/", phongController.getAllPhong);
+
+router.get("/:id", phongController.getPhongById);
+
+// =====================================
+// MANAGER + SUPERADMIN
+// =====================================
+
+router.post(
+  "/",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  phongController.createPhong,
+);
+
+router.put(
+  "/:id",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  phongController.updatePhong,
+);
+
+router.put(
+  "/:id/maintenance",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  phongController.maintenancePhong,
+);
+
+router.put(
+  "/:id/open",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  phongController.openPhong,
+);
+
+// =====================================
+// CHỈ SUPERADMIN
+// =====================================
+
+router.delete(
+  "/:id",
+  protect,
+  authorize("SUPER_ADMIN"),
+  phongController.deletePhong,
+);
+
+module.exports = router;

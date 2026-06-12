@@ -1,56 +1,56 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const hopDongSchema = new mongoose.Schema(
   {
     maHD: {
       type: String,
-      required: true,
+      required: [true, "Mã hợp đồng là bắt buộc"],
       unique: true,
       trim: true,
     },
+
     sinhVien: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SinhVien",
-      required: true,
+      required: [true, "Hợp đồng phải gắn với một sinh viên"],
     },
+
     phong: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Phong",
-      required: true,
+      required: [true, "Hợp đồng phải chỉ định phòng thuê"],
     },
+
     ngayBatDau: {
       type: Date,
-      required: true,
+      required: [true, "Vui lòng chọn ngày bắt đầu hợp đồng"],
     },
+
     ngayKetThuc: {
       type: Date,
-      required: true,
+      required: [true, "Vui lòng chọn ngày kết thúc hợp đồng"],
     },
+
     tienCoc: {
       type: Number,
-      required: true,
-      min: 0,
+      required: [true, "Tiền cọc không được để trống"],
+      min: [0, "Tiền cọc không thể là số âm"],
     },
 
-    giaPhongTaiThoiDiemKy: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
     trangThai: {
       type: String,
-      enum: ["Có hiệu lực", "Hết hạn", "Đã thanh lý"],
-      default: "Có hiệu lực",
+      enum: ["Hiệu lực", "Hết hạn", "Đã thanh lý"],
+      default: "Hiệu lực",
     },
-    daDongTien: {
-      type: Boolean,
-      default: false,
-    },
+
     ghiChu: {
       type: String,
+      default: "",
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export default mongoose.model("HopDong", hopDongSchema);
+module.exports = mongoose.model("HopDong", hopDongSchema);

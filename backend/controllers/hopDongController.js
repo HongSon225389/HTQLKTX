@@ -1,228 +1,458 @@
-import HopDong from "../models/HopDong.js";
-import Phong from "../models/Phong.js";
-import SinhVien from "../models/SinhVien.js";
+const HopDong = require("../models/HopDong");
+const SinhVien = require("../models/SinhVien");
+const Phong = require("../models/Phong");
+// const updateRoomStatus = require("../utils/updateRoomStatus");
+const mongoose = require("mongoose");
 
-// 1. LẤY DANH SÁCH TẤT CẢ HỢP ĐỒNG
-export const layDanhSachHopDong = async (req, res) => {
+// =====================================
+// LẤY DANH SÁCH HỢP ĐỒNG
+// =====================================
+exports.getDanhSachHopDong = async (req, res) => {
   try {
-    const homNay = new Date();
+    const today = new Date();
+    await HopDong.updateMany(
+      {
+        trangThai: "Hiệu lực",
+        ngayKetThuc: { $lt: today }, // Những hợp đồng có ngày kết thúc nhỏ hơn hôm nay
+      },
+      {
+        $set: { trangThai: "Hết hạn" },
+      },
+    );
+    const { keyword = "", trangThai = "", page = 1, limit = 10 } = req.query;
 
-    // 1. Lấy thông số phân trang (Mặc định trang 1, mỗi trang 10 bản ghi)
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    // 2. Tự động cập nhật trạng thái "Hết hạn"
-    const hdHetHan = await HopDong.find({
-      trangThai: "Có hiệu lực",
-      ngayKetThuc: { $lt: homNay },
-    });
-
-    if (hdHetHan.length > 0) {
-      for (let hd of hdHetHan) {
-        hd.trangThai = "Hết hạn";
-        await hd.save();
-        if (hd.sinhVien)
-          await SinhVien.findByIdAndUpdate(hd.sinhVien, { phong: null });
-        if (hd.phong) {
-          const soSVConLai = await SinhVien.countDocuments({ phong: hd.phong });
-          const phong = await Phong.findById(hd.phong);
-          if (phong) {
-            phong.trangThai = soSVConLai === 0 ? "Trống" : "Đang ở";
-            await phong.save();
-          }
-        }
-      }
+    const query = {};
+    if (keyword) {
+      query.maHD = { $regex: keyword, $options: "i" };
+    }
+    if (trangThai) {
+      query.trangThai = trangThai;
     }
 
-    // 3. Tính toán tổng số lượng (Giới hạn tối đa 100 bản ghi gần nhất)
-    const totalCount = await HopDong.countDocuments();
-    const cappedTotal = totalCount > 100 ? 100 : totalCount;
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
-    // 4. Lấy danh sách hợp đồng theo trang
-    const ds = await HopDong.find()
-      .populate("sinhVien", "hoTen maSV email")
-      .populate("phong", "tenPhong loaiPhong")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    const [danhSachHopDong, totalRecords] = await Promise.all([
+      HopDong.find(query)
+        .populate("sinhVien", "maSV hoTen sdt") // Đã fix: sinhVienId -> sinhVien
+        .populate("phong", "maPhong tenPhong toaNha") // Đã fix: phongId -> phong
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNumber),
+      HopDong.countDocuments(query),
+    ]);
 
     res.status(200).json({
-      success: true,
-      data: ds,
+      data: danhSachHopDong,
       pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(cappedTotal / limit),
-        totalItems: cappedTotal,
+        totalRecords,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalRecords / limitNumber),
+        hasNextPage: pageNumber < Math.ceil(totalRecords / limitNumber),
+        hasPrevPage: pageNumber > 1,
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi xử lý phân trang: " + error.message });
+    console.error("Lỗi lấy danh sách hợp đồng:", error);
+    res.status(500).json({ message: "Lỗi server khi tải dữ liệu hợp đồng!" });
   }
 };
 
-// 2. LẤY CHI TIẾT MỘT HỢP ĐỒNG
-export const layChiTietHopDong = async (req, res) => {
+// =====================================
+// LẤY CHI TIẾT HỢP ĐỒNG
+// =====================================
+exports.getHopDongById = async (req, res) => {
   try {
-    const hd = await HopDong.findById(req.params.id)
-      .populate("sinhVien")
-      .populate("phong");
-    if (!hd)
-      return res.status(404).json({ message: "Không tìm thấy hợp đồng!" });
-    res.status(200).json(hd);
+    const hopDong = await HopDong.findById(req.params.id)
+      .populate("sinhVien", "maSV hoTen cccd sdt queQuan") // Đã fix: sinhVienId -> sinhVien
+      .populate({
+        path: "phong", // Đã fix: phongId -> phong
+        select: "maPhong tenPhong toaNha loaiPhong",
+        populate: {
+          path: "loaiPhong", // Đã fix: loaiPhongId -> loaiPhong
+          select: "tenLoaiPhong donGia sucChua",
+        },
+      });
+
+    if (!hopDong) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy thông tin hợp đồng!" });
+    }
+
+    res.status(200).json({ success: true, data: hopDong });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi: " + error.message });
+    console.error("Lỗi lấy chi tiết hợp đồng:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy chi tiết hợp đồng!" });
   }
 };
 
-// 3. TẠO HỢP ĐỒNG MỚI
-export const taoHopDongMoi = async (req, res) => {
+// =====================================
+// TẠO HỢP ĐỒNG MỚI
+// =====================================
+
+// exports.taoHopDong = async (req, res) => {
+//   try {
+//     const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
+//       req.body;
+
+//     // 1. Kiểm tra mã hợp đồng trùng lặp
+//     const hdTonTai = await HopDong.findOne({ maHD });
+//     if (hdTonTai)
+//       return res.status(400).json({ message: "Mã hợp đồng đã tồn tại!" });
+
+//     // 2. Kiểm tra Sinh viên
+//     const svData = await SinhVien.findById(sinhVien);
+//     if (!svData)
+//       return res.status(404).json({ message: "Không tìm thấy sinh viên!" });
+//     if (svData.phong) {
+//       return res.status(400).json({
+//         message: "Sinh viên này hiện đang có hợp đồng và đã được xếp phòng!",
+//       });
+//     }
+
+//     // 3. Kiểm tra sức chứa của Phòng
+//     const phongData = await Phong.findById(phong).populate("loaiPhong");
+//     if (!phongData)
+//       return res.status(404).json({ message: "Không tìm thấy phòng!" });
+
+//     if (phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua) {
+//       return res.status(400).json({
+//         message: "Phòng này đã đạt tối đa sức chứa, không thể xếp thêm!",
+//       });
+//     }
+//     if (phongData.trangThai === "Bảo trì" || phongData.isDeleted) {
+//       return res
+//         .status(400)
+//         .json({ message: "Phòng đang bảo trì hoặc đã ngừng hoạt động!" });
+//     }
+
+//     // 4. Bắt đầu tạo hợp đồng
+//     const hopDongMoi = await HopDong.create({
+//       maHD,
+//       sinhVien,
+//       phong,
+//       ngayBatDau,
+//       ngayKetThuc,
+//       tienCoc,
+//     });
+
+//     // 5. Cập nhật trạng thái liên đới
+//     svData.phong = phongData._id;
+//     await svData.save();
+
+//     // Tăng số người và gọi hàm Utils cập nhật trạng thái
+//     phongData.soNguoiHienTai += 1;
+//     await phongData.save();
+//     await updateRoomStatus(phongData._id); // <--- Gọi Utils ở đây
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Tạo hợp đồng và xếp phòng thành công!",
+//       data: hopDongMoi,
+//     });
+//   } catch (error) {
+//     if (error.name === "ValidationError") {
+//       const messages = Object.values(error.errors).map((val) => val.message);
+//       return res
+//         .status(400)
+//         .json({ success: false, message: messages.join(", ") });
+//     }
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Lỗi server khi tạo hợp đồng!" });
+//   }
+// };
+
+// exports.taoHopDong = async (req, res) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+//   try {
+//     const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
+//       req.body;
+
+//     // 1. Kiểm tra logic (dùng session để truy vấn)
+//     const svData = await SinhVien.findById(sinhVien).session(session);
+//     if (!svData || svData.phong)
+//       throw new Error("Sinh viên không hợp lệ hoặc đã có phòng!");
+
+//     const phongData = await Phong.findById(phong)
+//       .populate("loaiPhong")
+//       .session(session);
+//     if (!phongData || phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua)
+//       throw new Error("Phòng không khả dụng!");
+
+//     // 2. Tạo Hợp Đồng
+//     const [hopDongMoi] = await HopDong.create(
+//       [{ maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc }],
+//       { session },
+//     );
+
+//     // 3. Cập nhật Sinh Viên & Phòng
+//     svData.phong = phongData._id;
+//     await svData.save({ session });
+
+//     phongData.soNguoiHienTai += 1;
+//     await phongData.save({ session });
+
+//     // Lưu thay đổi
+//     await session.commitTransaction();
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Tạo hợp đồng thành công!",
+//       data: hopDongMoi,
+//     });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     res.status(400).json({ success: false, message: error.message });
+//   } finally {
+//     session.endSession();
+//   }
+// };
+
+// =====================================
+// THANH LÝ HỢP ĐỒNG
+// =====================================
+
+// CẬP NHẬT HÀM TẠO HỢP ĐỒNG
+exports.taoHopDong = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const {
-      sinhVienId,
-      phongId,
-      ngayBatDau,
-      ngayKetThuc,
-      tienCoc,
-      daDongTien,
-      ghiChu,
-    } = req.body;
+    const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
+      req.body;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đưa về đầu ngày để so sánh công bằng
 
-    // 1. Lấy thông tin phòng và loại phòng để lấy giá tiền thực tế
-    const phong = await Phong.findById(phongId).populate("loaiPhong");
-    if (!phong) {
-      return res.status(404).json({ message: "Phòng không tồn tại!" });
+    if (new Date(ngayKetThuc) < today) {
+      throw new Error(
+        "Lỗi: Ngày kết thúc hợp đồng không được nằm trong quá khứ!",
+      );
+    }
+    if (new Date(ngayBatDau) >= new Date(ngayKetThuc)) {
+      throw new Error("Lỗi: Ngày kết thúc phải sau ngày bắt đầu!");
+    }
+    const hdTonTai = await HopDong.findOne({ maHD }).session(session);
+    if (hdTonTai) throw new Error("Mã hợp đồng đã tồn tại!");
+
+    const svData = await SinhVien.findById(sinhVien).session(session);
+    if (!svData || svData.phong)
+      throw new Error("Sinh viên không hợp lệ hoặc đã được xếp phòng!");
+
+    const phongData = await Phong.findById(phong)
+      .populate("loaiPhong")
+      .session(session);
+    if (
+      !phongData ||
+      phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua ||
+      phongData.trangThai === "Bảo trì"
+    ) {
+      throw new Error("Phòng không khả dụng, đã đầy hoặc đang bảo trì!");
     }
 
-    // 2. Kiểm tra sức chứa hiện tại của phòng (Tránh đăng ký quá tải)
-    const soSVHienTai = await SinhVien.countDocuments({ phong: phongId });
-    const sucChuaToiDa = phong.loaiPhong?.sucChua || 0;
+    // 1. Tạo hợp đồng
+    const [hopDongMoi] = await HopDong.create(
+      [{ maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc }],
+      { session },
+    );
 
-    if (soSVHienTai >= sucChuaToiDa) {
-      return res
-        .status(400)
-        .json({ message: "Phòng này đã đạt sức chứa tối đa!" });
+    // 2. Gán phòng cho SV
+    svData.phong = phongData._id;
+    await svData.save({ session });
+
+    // 3. Tăng người phòng VÀ Cập nhật trạng thái trực tiếp
+    phongData.soNguoiHienTai += 1;
+
+    // LOGIC CẬP NHẬT TRẠNG THÁI NGAY TẠI ĐÂY
+    if (phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua) {
+      phongData.trangThai = "Đầy";
+    } else {
+      phongData.trangThai = "Đang ở";
     }
 
-    // 3. Lấy giá tiền và tạo mã hợp đồng
-    const giaThucTe = phong.loaiPhong?.giaTien || 0;
-    if (!giaThucTe) {
-      return res
-        .status(400)
-        .json({ message: "Không tìm thấy đơn giá cho loại phòng này!" });
-    }
+    // Lưu lại cùng lúc trong kén an toàn
+    await phongData.save({ session });
 
-    const maHD = `HD-${Math.random().toString(36).substring(7).toUpperCase()}`;
-
-    // 4. Tạo và lưu Hợp đồng mới
-    const hopDongMoi = new HopDong({
-      maHD,
-      sinhVien: sinhVienId,
-      phong: phongId,
-      ngayBatDau,
-      ngayKetThuc,
-      tienCoc,
-      giaPhongTaiThoiDiemKy: giaThucTe,
-      daDongTien,
-      ghiChu,
-    });
-    await hopDongMoi.save();
-
-    // 5. CẬP NHẬT SINH VIÊN
-    await SinhVien.findByIdAndUpdate(sinhVienId, { phong: phongId });
-
-    // 6. CẬP NHẬT TRẠNG THÁI PHÒNG
-    phong.trangThai = soSVHienTai + 1 >= sucChuaToiDa ? "Đã đầy" : "Đang ở";
-    await phong.save();
+    // Chốt sổ
+    await session.commitTransaction();
 
     res.status(201).json({
-      message: "Tạo hợp đồng thành công! Sinh viên đã được xếp vào phòng.",
+      success: true,
+      message: "Tạo hợp đồng thành công!",
       data: hopDongMoi,
     });
   } catch (error) {
-    console.error("Lỗi tạo HD:", error);
-    res.status(500).json({ message: "Lỗi tạo hợp đồng: " + error.message });
+    await session.abortTransaction();
+    res.status(400).json({ success: false, message: error.message });
+  } finally {
+    session.endSession();
   }
 };
 
-// 4. THANH LÝ HỢP ĐỒNG
-export const thanhLyHopDong = async (req, res) => {
+// exports.thanhLyHopDong = async (req, res) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+//   try {
+//     const hopDong = await HopDong.findById(req.params.id).session(session);
+//     if (!hopDong || hopDong.trangThai === "Đã thanh lý")
+//       throw new Error("Hợp đồng không hợp lệ hoặc đã thanh lý!");
+
+//     hopDong.trangThai = "Đã thanh lý";
+//     await hopDong.save({ session });
+
+//     const svData = await SinhVien.findById(hopDong.sinhVien).session(session);
+//     if (svData) {
+//       svData.phong = null;
+//       await svData.save({ session });
+//     }
+
+//     const phongData = await Phong.findById(hopDong.phong).session(session);
+//     if (phongData && phongData.soNguoiHienTai > 0) {
+//       phongData.soNguoiHienTai -= 1;
+//       await phongData.save({ session });
+//     }
+
+//     await session.commitTransaction();
+//     await updateRoomStatus(hopDong.phong);
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "Thanh lý hợp đồng thành công!" });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     res.status(400).json({ success: false, message: error.message });
+//   } finally {
+//     session.endSession();
+//   }
+// };
+
+// =====================================
+// XÓA HỢP ĐỒNG
+// =====================================
+
+// CẬP NHẬT HÀM THANH LÝ
+exports.thanhLyHopDong = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const { id } = req.params;
-    const hopDong = await HopDong.findById(id);
+    const hopDong = await HopDong.findById(req.params.id).session(session);
+    if (!hopDong || hopDong.trangThai === "Đã thanh lý")
+      throw new Error("Hợp đồng không hợp lệ hoặc đã thanh lý!");
+
+    hopDong.trangThai = "Đã thanh lý";
+    await hopDong.save({ session });
+
+    const svData = await SinhVien.findById(hopDong.sinhVien).session(session);
+    if (svData) {
+      svData.phong = null;
+      await svData.save({ session });
+    }
+
+    const phongData = await Phong.findById(hopDong.phong)
+      .populate("loaiPhong")
+      .session(session);
+    if (phongData && phongData.soNguoiHienTai > 0) {
+      // Giảm số người
+      phongData.soNguoiHienTai -= 1;
+
+      // LOGIC CẬP NHẬT TRẠNG THÁI NGAY TẠI ĐÂY
+      if (phongData.soNguoiHienTai === 0) {
+        phongData.trangThai = "Trống";
+      } else {
+        phongData.trangThai = "Đang ở";
+      }
+
+      await phongData.save({ session });
+    }
+
+    await session.commitTransaction();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Thanh lý hợp đồng thành công!" });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(400).json({ success: false, message: error.message });
+  } finally {
+    session.endSession();
+  }
+};
+exports.xoaHopDong = async (req, res) => {
+  try {
+    const hopDong = await HopDong.findById(req.params.id);
+    if (!hopDong)
+      return res.status(404).json({ message: "Không tìm thấy hợp đồng!" });
+
+    if (hopDong.trangThai !== "Đã thanh lý") {
+      return res.status(400).json({
+        message:
+          "Hợp đồng đang có hiệu lực. Vui lòng Thanh lý hợp đồng trước khi xóa để đảm bảo toàn vẹn dữ liệu phòng!",
+      });
+    }
+
+    await hopDong.deleteOne();
+    res.status(200).json({ message: "Đã xóa bản ghi hợp đồng!" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server khi xóa hợp đồng!" });
+  }
+};
+
+// =====================================
+// GIA HẠN HỢP ĐỒNG
+// =====================================
+exports.giaHanHopDong = async (req, res) => {
+  try {
+    const { ngayKetThucMoi } = req.body;
+    const hopDong = await HopDong.findById(req.params.id);
 
     if (!hopDong)
       return res.status(404).json({ message: "Không tìm thấy hợp đồng!" });
     if (hopDong.trangThai === "Đã thanh lý") {
       return res
         .status(400)
-        .json({ message: "Hợp đồng đã thanh lý trước đó!" });
+        .json({ message: "Hợp đồng đã thanh lý không thể gia hạn!" });
     }
 
-    const phongId = hopDong.phong;
-    const sinhVienId = hopDong.sinhVien;
-
-    hopDong.trangThai = "Đã thanh lý";
-    await hopDong.save();
-
-    await SinhVien.findByIdAndUpdate(sinhVienId, { phong: null });
-
-    const soSVConLai = await SinhVien.countDocuments({ phong: phongId });
-    const phong = await Phong.findById(phongId);
-    phong.trangThai = soSVConLai === 0 ? "Trống" : "Đang ở";
-    await phong.save();
-
-    res.status(200).json({
-      message: "Thanh lý thành công!",
-      tienCocCanTra: hopDong.tienCoc,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi: " + error.message });
-  }
-};
-
-// 5. Gia hạn hợp đồng
-export const giaHanHopDong = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { ngayKetThucMoi } = req.body;
-
-    const hopDong = await HopDong.findById(id).populate("phong");
-    if (!hopDong)
-      return res.status(404).json({ message: "Không tìm thấy hợp đồng!" });
-
-    if (hopDong.trangThai !== "Hết hạn") {
-      return res
-        .status(400)
-        .json({ message: "Chỉ có thể gia hạn hợp đồng đã hết hạn!" });
-    }
-
-    // 1. Cập nhật Hợp đồng
     hopDong.ngayKetThuc = ngayKetThucMoi;
-    hopDong.trangThai = "Có hiệu lực";
+    hopDong.trangThai = "Hiệu lực";
     await hopDong.save();
-
-    // 2. Gán lại phòng cho Sinh viên
-    await SinhVien.findByIdAndUpdate(hopDong.sinhVien, {
-      phong: hopDong.phong._id,
-    });
-
-    // 3. Cập nhật lại trạng thái Phòng
-    const phong = await Phong.findById(hopDong.phong._id).populate("loaiPhong");
-    const soSVHienTai = await SinhVien.countDocuments({
-      phong: hopDong.phong._id,
-    });
-
-    if (phong) {
-      phong.trangThai =
-        soSVHienTai >= phong.loaiPhong.sucChua ? "Đã đầy" : "Đang ở";
-      await phong.save();
-    }
 
     res
       .status(200)
       .json({ message: "Gia hạn hợp đồng thành công!", data: hopDong });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi gia hạn: " + error.message });
+    res.status(500).json({ message: "Lỗi gia hạn hợp đồng!" });
+  }
+};
+
+//LẤY HỢP ĐỒNG CỦA SINH VIÊN ĐANG ĐĂNG NHẬP
+exports.getMyHopDong = async (req, res) => {
+  try {
+    // Tìm Sinh viên dựa vào ID User đang đăng nhập
+    const sinhVien = await SinhVien.findOne({ user: req.user._id });
+    if (!sinhVien)
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hồ sơ sinh viên!" });
+
+    // Lấy hợp đồng đang có hiệu lực của sinh viên đó
+    const hopDong = await HopDong.findOne({
+      sinhVien: sinhVien._id,
+      trangThai: "Hiệu lực",
+    }).populate({
+      path: "phong",
+      populate: { path: "loaiPhong", select: "tenLoaiPhong donGia" },
+    });
+
+    if (!hopDong)
+      return res
+        .status(404)
+        .json({ message: "Bạn chưa có hợp đồng lưu trú nào đang hiệu lực!" });
+
+    res.status(200).json({ success: true, data: hopDong });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server khi lấy hợp đồng cá nhân!" });
   }
 };

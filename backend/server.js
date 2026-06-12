@@ -1,62 +1,74 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import connectDB from "./config/db.js";
-import phongRoutes from "./routes/phongRoutes.js";
-import sinhVienRoutes from "./routes/sinhVienRoutes.js";
-import dienNuocRoutes from "./routes/dienNuocRoutes.js";
-import hoaDonRoutes from "./routes/hoaDonRoutes.js";
-import vatTuRoutes from "./routes/vatTuRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
-import { xacThucToken } from "./middlewares/authMiddleware.js";
-import taoAdminMacDinh from "./config/setupAdmin.js";
-import hopDongRoutes from "./routes/hopDongRoutes.js";
-import thongKeRoutes from "./routes/thongKeRoutes.js";
-import loaiPhongRoutes from "./routes/loaiPhongRoutes.js";
-import logRaVaoRoutes from "./routes/logRaVaoRoutes.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const connectDB = require("./config/db");
 
-// Nạp các biến môi trường từ file .env
+// 1. Khởi tạo biến môi trường từ file .env
 dotenv.config();
 
-// Kích hoạt kết nối đến MongoDB
+// 2. Kết nối Database
 connectDB();
 
-// Tự động tạo tài khoản Admin mặc định nếu chưa có ai trong DB
-taoAdminMacDinh();
-
+// 3. Khởi tạo app Express
 const app = express();
 
-// Middlewares
-app.use(cors()); // Xử lý lỗi bảo mật CORS khi gọi API chéo domain
-app.use(express.json()); // Cho phép server đọc dữ liệu JSON từ body của request
+// 4. Cài đặt Middlewares
+app.use(cors()); // Cho phép Frontend (React/Vue) gọi API ở port khác
+app.use(express.json()); // Phân tích body request định dạng JSON
+app.use(express.urlencoded({ extended: true })); // Phân tích body x-www-form-urlencoded
 
-// Gắn route API đăng nhập (đăng nhập, tạo admin)
+// 5. Import các Routes
+const authRoutes = require("./routes/authRoutes");
+const loaiPhongRoutes = require("./routes/loaiPhongRoutes");
+const phongRoutes = require("./routes/phongRoutes");
+const sinhVienRoutes = require("./routes/sinhVienRoutes");
+const nhanVienRoutes = require("./routes/nhanVienRoutes");
+const donDangKyRoutes = require("./routes/donDangKyRoutes");
+const hopDongRoutes = require("./routes/hopDongRoutes");
+const dienNuocRoutes = require("./routes/chiSoDienNuocRoutes");
+const hoaDonRoutes = require("./routes/hoaDonRoutes");
+const taiSanRoutes = require("./routes/taiSanRoutes");
+const yeuCauHoTroRoutes = require("./routes/yeuCauHoTroRoutes");
+const cauHinhRoutes = require("./routes/cauHinhRoutes");
+const thongkeRoutes = require("./routes/thongkeRoutes");
+const taiKhoanRoutes = require("./routes/taiKhoanRoutes");
+const initCronJobs = require("./cron/cleanUpAccounts");
+initCronJobs();
+// 6. Gắn Routes vào API (Mounting Routes)
 app.use("/api/auth", authRoutes);
+app.use("/api/loai-phong", loaiPhongRoutes);
+app.use("/api/phong", phongRoutes);
+app.use("/api/sinh-vien", sinhVienRoutes);
+app.use("/api/nhan-vien", nhanVienRoutes);
+app.use("/api/don-dang-ky", donDangKyRoutes);
+app.use("/api/hop-dong", hopDongRoutes);
+app.use("/api/dien-nuoc", dienNuocRoutes);
+app.use("/api/hoa-don", hoaDonRoutes);
+app.use("/api/tai-san", taiSanRoutes);
+app.use("/api/yeu-cau-ho-tro", yeuCauHoTroRoutes);
+app.use("/api/cau-hinh", cauHinhRoutes);
+app.use("/api/thong-ke", thongkeRoutes);
+app.use("/api/tai-khoan", taiKhoanRoutes);
+// 7. Middleware xử lý Route không tồn tại (404 Not Found)
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: "Endpoint này không tồn tại trên server!",
+  });
+});
 
-// Gắn route API quản lý phòng
-app.use("/api/phong", xacThucToken, phongRoutes);
-// Gắn route API quản lý sinh viên
-app.use("/api/sinhvien", xacThucToken, sinhVienRoutes);
-// Gắn route API quản lý điện nước
-app.use("/api/dien-nuoc", xacThucToken, dienNuocRoutes);
-// Gắn route API quản lý hóa đơn
-app.use("/api/hoadon", xacThucToken, hoaDonRoutes);
-// Gắn route API quản lý vật tư
-app.use("/api/vattu", xacThucToken, vatTuRoutes);
+// 8. Middleware bắt lỗi Global (500 Internal Server Error)
+app.use((err, req, res, next) => {
+  console.error("Lỗi Server:", err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau!",
+  });
+});
 
-// Gắn route API quản lý hợp đồng
-app.use("/api/hopdong", xacThucToken, hopDongRoutes);
-
-// Gắn route API thống kê dashboard
-app.use("/api/thong-ke", xacThucToken, thongKeRoutes);
-
-// Gắn route API quản lý loại phòng
-app.use("/api/loaiphong", xacThucToken, loaiPhongRoutes);
-
-// Gắn route API quản lý log ra vào
-app.use("/api/log-ra-vao", logRaVaoRoutes);
+// 9. Lắng nghe Port và khởi chạy Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server Backend đang chạy tại http://localhost:${PORT}`);
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });

@@ -1,25 +1,41 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const loaiPhongSchema = new mongoose.Schema(
   {
-    tenLoai: {
+    maLoaiPhong: {
       type: String,
-      required: true,
+      required: [true, "Vui lòng nhập mã loại phòng"],
       unique: true,
       trim: true,
     },
-    giaTien: {
-      type: Number,
-      required: true,
-      min: 0,
+
+    tenLoaiPhong: {
+      type: String,
+      required: [true, "Vui lòng nhập tên loại phòng"],
+      trim: true,
     },
+
     sucChua: {
       type: Number,
-      required: true,
-      min: 1,
+      required: [true, "Sức chứa không được để trống"],
+      min: [1, "Sức chứa tối thiểu là 1 người"],
+    },
+
+    donGia: {
+      type: Number,
+      required: [true, "Đơn giá không được để trống"],
+      min: [0, "Đơn giá không hợp lệ"],
+    },
+
+    trangThai: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE",
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export default mongoose.model("LoaiPhong", loaiPhongSchema);
+module.exports = mongoose.model("LoaiPhong", loaiPhongSchema);

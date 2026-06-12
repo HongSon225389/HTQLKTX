@@ -1,18 +1,57 @@
-import express from "express";
-import {
-  layDanhSachSV,
-  dangKyKtx,
-  xoaSV,
-  layHopDongSV,
-  capNhatSV,
-} from "../controllers/sinhVienController.js";
-import { xacThucToken } from "../middlewares/authMiddleware.js";
+const express = require("express");
 
 const router = express.Router();
 
-router.get("/", xacThucToken, layDanhSachSV);
-router.post("/dang-ky", xacThucToken, dangKyKtx);
-router.delete("/:id", xacThucToken, xoaSV);
-router.get("/hop-dong/:id", xacThucToken, layHopDongSV);
-router.put("/:id", xacThucToken, capNhatSV);
-export default router;
+const sinhVienController = require("../controllers/sinhVienController");
+
+const { protect, authorize } = require("../middlewares/auth");
+
+router.get("/me", protect, authorize("STUDENT"), sinhVienController.getMe);
+
+// =========================
+// MANAGER + ADMIN
+// =========================
+
+router.get(
+  "/",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.getAllSinhVien,
+);
+
+router.get(
+  "/:id",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.getSinhVienById,
+);
+
+router.post(
+  "/",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.createSinhVien,
+);
+
+router.put(
+  "/:id",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.updateSinhVien,
+);
+
+router.put(
+  "/:id/chuyen-phong",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.chuyenPhong,
+);
+
+router.delete(
+  "/:id",
+  protect,
+  authorize("SUPER_ADMIN", "MANAGER"),
+  sinhVienController.deleteSinhVien,
+);
+
+module.exports = router;

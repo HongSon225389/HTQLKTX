@@ -1,13 +1,14 @@
-import express from "express";
-import {
-  layThongKeDashboard,
-  layDuLieuBieuDo,
-} from "../controllers/thongKeController.js";
-import { xacThucToken } from "../middlewares/authMiddleware.js";
-
+const express = require("express");
 const router = express.Router();
+const thongKeController = require("../controllers/thongKeController");
+const authMiddleware = require("../middlewares/auth");
 
-router.get("/dashboard", xacThucToken, layThongKeDashboard);
-router.get("/bieu-do", xacThucToken, layDuLieuBieuDo);
+// Route lấy dữ liệu Dashboard (Chỉ Admin và Manager được xem)
+router.get(
+  "/tong-quan",
+  authMiddleware.protect,
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  thongKeController.getDashboardData,
+);
 
-export default router;
+module.exports = router;

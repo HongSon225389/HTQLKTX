@@ -1,86 +1,373 @@
-import Phong from "../models/Phong.js";
-
-// 1. Lấy danh sách toàn bộ phòng
-export const layDanhSachPhong = async (req, res) => {
+const Phong = require("../models/Phong");
+const LoaiPhong = require("../models/LoaiPhong");
+const SinhVien = require("../models/SinhVien");
+const updateRoomStatus = require("../utils/updateRoomStatus");
+// ==================================================
+// GET ALL PHONG
+// ==================================================
+exports.getAllPhong = async (req, res) => {
   try {
-    const danhSachPhong = await Phong.find()
-      .populate("loaiPhong")
-      .sort({ tenPhong: 1 });
-    res.status(200).json(danhSachPhong);
+    const {
+      page = 1,
+      limit = 100,
+      keyword,
+      toaNha,
+      tang,
+      loaiPhong,
+      trangThai,
+      sort = "-createdAt",
+    } = req.query;
+
+    const query = { isDeleted: false };
+
+    // tìm kiếm mã phòng hoặc tên phòng
+    if (keyword) {
+      query.$or = [
+        {
+          maPhong: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+          tenPhong: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    if (toaNha) {
+      query.toaNha = toaNha;
+    }
+
+    if (tang) {
+      query.tang = Number(tang);
+    }
+
+    if (loaiPhong) {
+      query.loaiPhong = loaiPhong;
+    }
+
+    if (trangThai) {
+      query.trangThai = trangThai;
+    }
+
+    const total = await Phong.countDocuments(query);
+
+    const data = await Phong.find(query)
+      .populate("loaiPhong", "maLoaiPhong tenLoaiPhong sucChua donGia")
+      .sort(sort)
+      .skip((page - 1) * Number(limit))
+      .limit(Number(limit));
+
+    res.status(200).json({
+      success: true,
+      total,
+      currentPage: Number(page),
+      totalPages: Math.ceil(total / limit),
+      data,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi lấy danh sách phòng", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-// 2. Thêm phòng mới
-export const themPhongMoi = async (req, res) => {
+// ==================================================
+// GET PHONG BY ID (KÈM DANH SÁCH SINH VIÊN BÊN TRONG)
+// ==================================================
+exports.getPhongById = async (req, res) => {
   try {
-    const { tenPhong, loaiPhong } = req.body;
+    // 1. Lấy thông tin cơ bản của Phòng
+    const phong = await Phong.findById(req.params.id).populate(
+      "loaiPhong",
+      "maLoaiPhong tenLoaiPhong sucChua donGia",
+    );
 
-    const phongDaTonTai = await Phong.findOne({ tenPhong });
-    if (phongDaTonTai) {
-      return res.status(400).json({ message: "Tên phòng này đã tồn tại!" });
+    if (!phong) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy phòng",
+      });
     }
 
-    const phongMoi = new Phong({
+    // 2. Tìm tất cả sinh viên đang ở trong phòng này
+    const danhSachSinhVien = await SinhVien.find({
+      phong: req.params.id,
+      trangThai: { $ne: "DA_ROI" }, // Bỏ qua những bạn đã chuyển đi
+    }).select("maSV hoTen cccd sdt email");
+
+    // 3. Trộn kết quả lại và gửi về Frontend
+    // Dùng .toObject() để biến phong từ Mongoose Document thành JSON thường mới gắn thêm thuộc tính được
+    const phongData = phong.toObject();
+    phongData.danhSachSinhVien = danhSachSinhVien;
+
+    res.status(200).json({
+      success: true,
+      data: phongData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ==================================================
+// CREATE PHONG
+// ==================================================
+exports.createPhong = async (req, res) => {
+  try {
+    const { maPhong, tenPhong, toaNha, tang, loaiPhong, moTa } = req.body;
+
+    const existed = await Phong.findOne({ maPhong });
+    if (existed) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Mã phòng đã tồn tại" });
+    }
+
+    const loaiPhongExist = await LoaiPhong.findById(loaiPhong);
+    if (!loaiPhongExist) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Loại phòng không tồn tại" });
+    }
+
+    // ĐỒNG BỘ: Gán mặc định ban đầu khi tạo phòng
+    const phong = await Phong.create({
+      maPhong,
       tenPhong,
+      toaNha,
+      tang,
       loaiPhong,
-      trangThai: "Trống",
+      moTa,
+      soNguoiHienTai: 0,
+      trangThai: "Trống", // Luôn luôn là Trống khi mới tạo
     });
 
-    const phongDaLuu = await phongMoi.save();
-    res
-      .status(201)
-      .json({ message: "Thêm phòng thành công!", phong: phongDaLuu });
+    res.status(201).json({
+      success: true,
+      message: "Thêm phòng thành công",
+      data: phong,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi thêm phòng mới", error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 3. Cập nhật thông tin phòng
-export const capNhatPhong = async (req, res) => {
+// ==================================================
+// UPDATE PHONG
+// ==================================================
+exports.updatePhong = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { trangThai, loaiPhong } = req.body;
-
-    const phongCapNhat = await Phong.findByIdAndUpdate(
-      id,
-      { trangThai, loaiPhong },
-      { new: true },
-    ).populate("loaiPhong");
-
-    if (!phongCapNhat) {
-      return res.status(404).json({ message: "Không tìm thấy phòng!" });
+    if (req.body.maPhong) {
+      const existed = await Phong.findOne({
+        maPhong: req.body.maPhong,
+        _id: { $ne: req.params.id },
+      });
+      if (existed) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Mã phòng này đã tồn tại" });
+      }
     }
+
+    if (req.body.loaiPhong) {
+      const loaiPhongExist = await LoaiPhong.findById(req.body.loaiPhong);
+      if (!loaiPhongExist) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Loại phòng mới không tồn tại" });
+      }
+    }
+
+    // CHẶN NGUY HIỂM: Không cho phép sửa đổi số người trực tiếp qua đây
+    if (req.body.soNguoiHienTai) {
+      delete req.body.soNguoiHienTai;
+    }
+
+    // 1. Thực hiện cập nhật các thông tin Admin thay đổi
+    let phong = await Phong.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!phong) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy phòng" });
+    }
+
+    // 2. ĐỒNG BỘ TRẠNG THÁI: Gọi helper tính toán lại trạng thái tự động
+    // Chỉ tính toán lại nếu phòng không ở trạng thái đặc biệt như "Bảo trì" hoặc "Ngừng hoạt động"
+    if (
+      phong.trangThai !== "Bảo trì" &&
+      phong.trangThai !== "Ngừng hoạt động"
+    ) {
+      await updateRoomStatus(phong._id);
+
+      // Lấy lại dữ liệu mới nhất sau khi hàm updateRoomStatus đã chạy xong
+      phong = await Phong.findById(req.params.id).populate(
+        "loaiPhong",
+        "maLoaiPhong tenLoaiPhong sucChua donGia",
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Cập nhật phòng thành công",
+      data: phong,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ==================================================
+// DELETE PHONG
+// ==================================================
+exports.deletePhong = async (req, res) => {
+  try {
+    const phong = await Phong.findById(req.params.id);
+
+    if (!phong) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy phòng",
+      });
+    }
+    if (phong.soNguoiHienTai > 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Không thể xóa phòng đang có sinh viên lưu trú. Vui lòng chuyển sinh viên ra khỏi phòng trước.",
+      });
+    }
+
+    phong.isDeleted = true;
+    phong.trangThai = "Ngừng hoạt động";
+
+    await phong.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Xóa phòng thành công",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ==================================================
+// KHÓA PHÒNG BẢO TRÌ
+// ==================================================
+exports.maintenancePhong = async (req, res) => {
+  try {
+    const phong = await Phong.findById(req.params.id);
+    if (!phong) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy phòng" });
+    }
+
+    // Ràng buộc: Chỉ bảo trì phòng trống
+    if (phong.soNguoiHienTai > 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Không thể bảo trì phòng đang có sinh viên ở. Vui lòng chuyển sinh viên trước.",
+      });
+    }
+
+    phong.trangThai = "Bảo trì";
+    await phong.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Đã chuyển phòng sang bảo trì",
+      data: phong,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ==================================================
+// MỞ LẠI PHÒNG
+// ==================================================
+exports.openPhong = async (req, res) => {
+  try {
+    const phong = await Phong.findById(req.params.id);
+    if (!phong) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy phòng" });
+    }
+
+    // Ràng buộc: Phải đang bảo trì mới được mở
+    if (phong.trangThai !== "Bảo trì") {
+      return res.status(400).json({
+        success: false,
+        message: "Phòng này hiện không ở trạng thái bảo trì",
+      });
+    }
+
+    // Logic: Nếu phòng không có người thì Trống, có người thì Đang ở
+    phong.trangThai = phong.soNguoiHienTai === 0 ? "Trống" : "Đang ở";
+    await phong.save();
 
     res
       .status(200)
-      .json({ message: "Cập nhật phòng thành công!", phong: phongCapNhat });
+      .json({ success: true, message: "Mở lại phòng thành công", data: phong });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi cập nhật phòng", error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 4. Xóa phòng
-export const xoaPhong = async (req, res) => {
+// ==================================================
+// LẤY THÔNG TIN PHÒNG CỦA SINH VIÊN ĐANG ĐĂNG NHẬP
+// GET /api/phong/my-room
+// ==================================================
+exports.getMyRoom = async (req, res) => {
   try {
-    const { id } = req.params;
-    const phongDaXoa = await Phong.findByIdAndDelete(id);
+    // 1. Tìm hồ sơ Sinh Viên dựa vào user ID lấy từ token đăng nhập
+    const sinhVien = await SinhVien.findOne({ user: req.user.id });
 
-    if (!phongDaXoa) {
-      return res.status(404).json({ message: "Không tìm thấy phòng để xóa!" });
+    if (!sinhVien || !sinhVien.phong) {
+      return res.status(200).json({
+        success: true, // Trả về thành công để Frontend không văng vào catch()
+        data: null, // Dữ liệu rỗng
+        message: "Bạn chưa được xếp phòng hoặc không có dữ liệu lưu trú.",
+      });
     }
 
-    res.status(200).json({ message: "Xóa phòng thành công!" });
+    // 2. Lấy thông tin chi tiết của phòng đó (kèm theo Loại phòng để lấy giá tiền)
+    const phong = await Phong.findById(sinhVien.phong).populate("loaiPhong");
+
+    // 3. Tìm những sinh viên khác đang ở CÙNG PHÒNG (Loại trừ bản thân sinh viên đang truy vấn ra)
+    const banCungPhong = await SinhVien.find({
+      phong: phong._id,
+      _id: { $ne: sinhVien._id },
+      trangThai: { $ne: "DA_ROI" }, // Không lấy những người đã rời đi
+    }).select("maSV hoTen sdt email");
+
+    res.status(200).json({
+      success: true,
+      data: {
+        phong,
+        banCungPhong,
+      },
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi xóa phòng", error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };

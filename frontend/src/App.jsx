@@ -1,53 +1,103 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import Phong from "./pages/Phong";
-import BaoCao from "./pages/BaoCao";
-import SinhVien from "./pages/SinhVien";
-import DienNuoc from "./pages/DienNuoc";
-import HoaDon from "./pages/HoaDon";
-import HopDong from "./pages/HopDong";
-import Login from "./pages/Login";
-import VatTu from "./pages/VatTu";
-import LogRaVao from "./pages/LogRaVao";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "./contexts/AuthContext";
 
-const ProtectedRoute = () => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <MainLayout />;
-};
-
+// Import Pages, Layouts & Routes
+import Login from "./pages/auth/Login";
+import Register from "./pages/public/Register";
+import AdminLayout from "./layouts/AdminLayout";
+import TongQuan from "./pages/admin/TongQuan";
+import PrivateRoute from "./routes/PrivateRoute";
+import DonDangKy from "./pages/admin/DonDangKy";
+import QuanLySinhVien from "./pages/admin/QuanLySinhVien";
+import StudentLayout from "./layouts/StudentLayout";
+import HoSoCaNhan from "./pages/student/HoSoCaNhan";
+import DoiMatKhau from "./pages/student/DoiMatKhau";
+import QuanLyPhong from "./pages/admin/QuanLyPhong";
+import ThongTinPhong from "./pages/student/ThongTinPhong";
+import QuanLyHopDong from "./pages/admin/QuanLyHopDong";
+import ThongTinHopDong from "./pages/student/ThongTinHopDong";
+import QuanLyHoaDon from "./pages/admin/QuanLyHoaDon";
+import SinhVienHoaDon from "./pages/student/SinhVienHoaDon";
+import QuanLyTaiKhoan from "./pages/admin/QuanLyTaiKhoan";
+import QuanLySuCo from "./pages/technician/QuanLySuCo";
+import QuanLyTaiSan from "./pages/admin/QuanLyTaiSan";
+import QuanLyTaiSanTech from "./pages/technician/QuanLyTaiSanTech";
+// 👇 BỔ SUNG: Import TechnicianLayout (Đảm bảo bạn đã tạo file này ở Bước trước)
+import TechnicianLayout from "./layouts/TechnicianLayout";
+import YeuCauHoTro from "./pages/student/YeuCauHoTro";
+import QuanLyYeuCau from "./pages/admin/QuanLyYeuCau";
+import QuanLyYeuCauTech from "./pages/technician/QuanLyYeuCauTech";
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <ToastContainer position="top-right" autoClose={3000} />
 
-        <Route path="/" element={<ProtectedRoute />}>
-          <Route index element={<Dashboard />} />
-          <Route path="phong" element={<Phong />} />
-          <Route path="sinh-vien" element={<SinhVien />} />
-          <Route path="dien-nuoc" element={<DienNuoc />} />
-          <Route path="hoadon" element={<HoaDon />} />
-          <Route path="bao-cao" element={<BaoCao />} />
-          <Route path="hop-dong" element={<HopDong />} />
-          <Route path="vat-tu" element={<VatTu />} />
-          <Route path="log-ra-vao" element={<LogRaVao />} />
-        </Route>
+        <Routes>
+          {/* ----- CÁC ROUTE PUBLIC ----- */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          {/* ----- KHU VỰC CỦA ADMIN (SUPER_ADMIN & MANAGER) ----- */}
+          <Route
+            element={<PrivateRoute allowedRoles={["SUPER_ADMIN", "MANAGER"]} />}
+          >
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<TongQuan />} />
+              <Route path="don-dang-ky" element={<DonDangKy />} />
+              <Route path="sinh-vien" element={<QuanLySinhVien />} />
+              <Route path="phong" element={<QuanLyPhong />} />
+              <Route path="hop-dong" element={<QuanLyHopDong />} />
+              <Route path="hoa-don" element={<QuanLyHoaDon />} />
+              <Route path="tai-san" element={<QuanLyTaiSan />} />
+              <Route path="yeu-cau" element={<QuanLyYeuCau />} />
+              {/* Đã sửa bỏ dấu / ở trước path này cho chuẩn React Router v6 */}
+              <Route path="nhan-su" element={<QuanLyTaiKhoan />} />
+            </Route>
+          </Route>
+
+          {/* ----- KHU VỰC CỦA SINH VIÊN (STUDENT) ----- */}
+          <Route element={<PrivateRoute allowedRoles={["STUDENT"]} />}>
+            <Route path="/student" element={<StudentLayout />}>
+              <Route index element={<HoSoCaNhan />} />
+              <Route path="phong" element={<ThongTinPhong />} />
+              <Route path="hop-dong" element={<ThongTinHopDong />} />
+              <Route path="hoa-don" element={<SinhVienHoaDon />} />
+              <Route path="yeu-cau" element={<YeuCauHoTro />} />
+              <Route path="doi-mat-khau" element={<DoiMatKhau />} />
+            </Route>
+          </Route>
+
+          {/* 👇 ----- KHU VỰC CỦA KỸ THUẬT VIÊN (TECHNICIAN) ----- 👇 */}
+          <Route element={<PrivateRoute allowedRoles={["TECHNICIAN"]} />}>
+            <Route path="/technician" element={<TechnicianLayout />}>
+              {/* Mặc định vào sẽ chuyển hướng sang trang yêu cầu sự cố */}
+              <Route index element={<Navigate to="su-co" replace />} />
+
+              <Route path="su-co" element={<QuanLyYeuCauTech />} />
+
+              <Route path="tai-san" element={<QuanLyTaiSanTech />} />
+
+              {/* Bạn có thể tái sử dụng component HoSoCaNhan và DoiMatKhau của Sinh Viên 
+                  hoặc tạo file mới dành riêng cho Technician tùy ý. Tạm thời mình để thẻ div giữ chỗ. */}
+              <Route
+                path="ho-so"
+                element={
+                  <div>Đang xây dựng: Thông tin cá nhân (Kỹ thuật viên)</div>
+                }
+              />
+              <Route
+                path="doi-mat-khau"
+                element={<div>Đang xây dựng: Đổi mật khẩu</div>}
+              />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

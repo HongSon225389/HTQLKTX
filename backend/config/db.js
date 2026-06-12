@@ -1,13 +1,15 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
+    // Chỉ cần truyền URL, xóa bỏ object options {} đi
     const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    console.log(`✅ MongoDB đã kết nối thành công: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Lỗi kết nối database: ${error.message}`);
+    console.error(`❌ Lỗi kết nối MongoDB: ${error.message}`);
     process.exit(1);
   }
 };
 
-export default connectDB;
+module.exports = connectDB;

@@ -1,22 +1,57 @@
-import express from "express";
-import {
-  taoHopDongMoi,
-  layDanhSachHopDong,
-  thanhLyHopDong,
-  layChiTietHopDong,
-  giaHanHopDong,
-} from "../controllers/hopDongController.js";
-import { xacThucToken } from "../middlewares/authMiddleware.js";
+const express = require("express");
 const router = express.Router();
 
-router.get("/", xacThucToken, layDanhSachHopDong);
+const hopdongController = require("../controllers/hopdongController");
+const authMiddleware = require("../middlewares/auth");
 
-router.get("/:id", xacThucToken, layChiTietHopDong);
+router.use(authMiddleware.protect);
 
-router.post("/tao", xacThucToken, taoHopDongMoi);
+router.get(
+  "/me",
+  authMiddleware.authorize("STUDENT"),
+  hopdongController.getMyHopDong,
+);
 
-router.put("/thanh-ly/:id", xacThucToken, thanhLyHopDong);
+// 1. Lấy danh sách hợp đồng (Thêm authorize)
+router.get(
+  "/",
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  hopdongController.getDanhSachHopDong,
+);
 
-router.put("/gia-han/:id", xacThucToken, giaHanHopDong);
+// 2. Lấy chi tiết hợp đồng
+router.get(
+  "/:id",
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  hopdongController.getHopDongById,
+);
 
-export default router;
+// 3. Gia hạn hợp đồng (Thêm authorize)
+router.put(
+  "/:id/giahan",
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  hopdongController.giaHanHopDong,
+);
+
+// 4. Tạo hợp đồng mới
+router.post(
+  "/",
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  hopdongController.taoHopDong,
+);
+
+// 5. Thanh lý hợp đồng
+router.put(
+  "/:id/thanhly",
+  authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
+  hopdongController.thanhLyHopDong,
+);
+
+// 6. Xóa hẳn hợp đồng
+router.delete(
+  "/:id",
+  authMiddleware.authorize("SUPER_ADMIN"), // Nên chỉ giới hạn SuperAdmin xóa cứng
+  hopdongController.xoaHopDong,
+);
+
+module.exports = router;
