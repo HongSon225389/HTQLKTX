@@ -10,7 +10,7 @@ const TaoTaiKhoanModal = ({ isOpen, onClose, onSuccess }) => {
     email: "",
     fullName: "",
     phone: "",
-    role: "MANAGER", // Mặc định là Quản lý
+    role: "MANAGER",
   });
   const [loading, setLoading] = useState(false);
 

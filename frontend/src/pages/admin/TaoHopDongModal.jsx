@@ -43,7 +43,7 @@ const TaoHopDongModal = ({ onClose, onRefresh }) => {
     loadDependencies();
   }, []);
 
-  // 🌟 LOGIC MỚI: Tự động sinh mã hợp đồng khi chọn Sinh Viên
+  // Tự động sinh mã hợp đồng khi chọn Sinh Viên
   useEffect(() => {
     if (formData.sinhVien) {
       // Tìm sinh viên đang được chọn trong danh sách

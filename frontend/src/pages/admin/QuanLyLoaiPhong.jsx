@@ -14,7 +14,7 @@ const QuanLyLoaiPhong = () => {
   const [danhSachLoaiPhong, setDanhSachLoaiPhong] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // State cho Modal (Form Thêm/Sửa)
+  // State cho Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);

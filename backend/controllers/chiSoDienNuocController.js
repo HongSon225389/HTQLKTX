@@ -6,19 +6,18 @@ const Phong = require("../models/Phong");
 // =====================================
 exports.getDanhSachDienNuoc = async (req, res) => {
   try {
-    const { thangNam = "", phong = "", page = 1, limit = 10 } = req.query; // SỬA: phongId -> phong
+    const { thangNam = "", phong = "", page = 1, limit = 10 } = req.query;
 
     const query = {};
     if (thangNam) query.thangNam = thangNam;
-    if (phong) query.phong = phong; // SỬA: phongId -> phong
-
+    if (phong) query.phong = phong;
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const skip = (pageNumber - 1) * limitNumber;
 
     const [danhSachDienNuoc, totalRecords] = await Promise.all([
       ChiSoDienNuoc.find(query)
-        .populate("phong", "maPhong tenPhong toaNha") // SỬA: phongId -> phong
+        .populate("phong", "maPhong tenPhong toaNha")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber),
@@ -46,7 +45,7 @@ exports.getDanhSachDienNuoc = async (req, res) => {
 // =====================================
 exports.getChiSoMoiNhatCuaPhong = async (req, res) => {
   try {
-    // SỬA Ở ĐÂY: Quét mọi trường hợp tên biến param từ Route
+    // Quét mọi trường hợp tên biến param từ Route
     const phongId = req.params.id || req.params.phongId || req.params.phong;
 
     if (!phongId) {
@@ -101,7 +100,7 @@ exports.chotSoDienNuoc = async (req, res) => {
         .json({ message: "Chỉ số nước mới không được nhỏ hơn chỉ số cũ!" });
     }
 
-    // BỔ SUNG LOGIC CHẶN CHẶT CHẼ: Lấy bản ghi chốt số gần nhất của phòng này
+    // 4. Lấy bản ghi chốt số gần nhất của phòng này
     const chiSoMoiNhat = await ChiSoDienNuoc.findOne({ phong }).sort({
       createdAt: -1,
     });
@@ -135,7 +134,7 @@ exports.chotSoDienNuoc = async (req, res) => {
     // 4. Lưu vào Database
     const dienNuocMoi = await ChiSoDienNuoc.create({
       maCS,
-      phong, // SỬA: phongId -> phong
+      phong,
       thangNam,
       soDienCu,
       soDienMoi,
@@ -182,7 +181,7 @@ exports.capNhatChiSo = async (req, res) => {
   try {
     const { soDienCu, soDienMoi, soNuocCu, soNuocMoi } = req.body;
 
-    // SỬA LOGIC CẬP NHẬT: Lấy bản ghi cũ ra trước để so sánh nếu Frontend không gửi đủ 4 trường
+    // Lấy bản ghi cũ ra trước để so sánh nếu Frontend không gửi đủ 4 trường
     const oldRecord = await ChiSoDienNuoc.findById(req.params.id);
     if (!oldRecord) {
       return res

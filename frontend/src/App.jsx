@@ -3,7 +3,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./contexts/AuthContext";
 
-// Import Pages, Layouts & Routes
 import Login from "./pages/auth/Login";
 import Register from "./pages/public/Register";
 import AdminLayout from "./layouts/AdminLayout";
@@ -24,7 +23,6 @@ import QuanLyTaiKhoan from "./pages/admin/QuanLyTaiKhoan";
 import QuanLySuCo from "./pages/technician/QuanLySuCo";
 import QuanLyTaiSan from "./pages/admin/QuanLyTaiSan";
 import QuanLyTaiSanTech from "./pages/technician/QuanLyTaiSanTech";
-// 👇 BỔ SUNG: Import TechnicianLayout (Đảm bảo bạn đã tạo file này ở Bước trước)
 import TechnicianLayout from "./layouts/TechnicianLayout";
 import YeuCauHoTro from "./pages/student/YeuCauHoTro";
 import QuanLyYeuCau from "./pages/admin/QuanLyYeuCau";
@@ -54,7 +52,6 @@ function App() {
               <Route path="hoa-don" element={<QuanLyHoaDon />} />
               <Route path="tai-san" element={<QuanLyTaiSan />} />
               <Route path="yeu-cau" element={<QuanLyYeuCau />} />
-              {/* Đã sửa bỏ dấu / ở trước path này cho chuẩn React Router v6 */}
               <Route path="nhan-su" element={<QuanLyTaiKhoan />} />
             </Route>
           </Route>
@@ -81,8 +78,8 @@ function App() {
 
               <Route path="tai-san" element={<QuanLyTaiSanTech />} />
 
-              {/* Bạn có thể tái sử dụng component HoSoCaNhan và DoiMatKhau của Sinh Viên 
-                  hoặc tạo file mới dành riêng cho Technician tùy ý. Tạm thời mình để thẻ div giữ chỗ. */}
+              {/* Có thể tái sử dụng component HoSoCaNhan và DoiMatKhau của Sinh Viên 
+                  hoặc tạo file mới dành riêng cho Technician  */}
               <Route
                 path="ho-so"
                 element={

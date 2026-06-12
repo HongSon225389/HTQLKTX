@@ -3,21 +3,16 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
-// 1. Khởi tạo biến môi trường từ file .env
 dotenv.config();
 
-// 2. Kết nối Database
 connectDB();
 
-// 3. Khởi tạo app Express
 const app = express();
 
-// 4. Cài đặt Middlewares
-app.use(cors()); // Cho phép Frontend (React/Vue) gọi API ở port khác
-app.use(express.json()); // Phân tích body request định dạng JSON
-app.use(express.urlencoded({ extended: true })); // Phân tích body x-www-form-urlencoded
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// 5. Import các Routes
 const authRoutes = require("./routes/authRoutes");
 const loaiPhongRoutes = require("./routes/loaiPhongRoutes");
 const phongRoutes = require("./routes/phongRoutes");
@@ -34,7 +29,7 @@ const thongkeRoutes = require("./routes/thongkeRoutes");
 const taiKhoanRoutes = require("./routes/taiKhoanRoutes");
 const initCronJobs = require("./cron/cleanUpAccounts");
 initCronJobs();
-// 6. Gắn Routes vào API (Mounting Routes)
+
 app.use("/api/auth", authRoutes);
 app.use("/api/loai-phong", loaiPhongRoutes);
 app.use("/api/phong", phongRoutes);
@@ -49,7 +44,6 @@ app.use("/api/yeu-cau-ho-tro", yeuCauHoTroRoutes);
 app.use("/api/cau-hinh", cauHinhRoutes);
 app.use("/api/thong-ke", thongkeRoutes);
 app.use("/api/tai-khoan", taiKhoanRoutes);
-// 7. Middleware xử lý Route không tồn tại (404 Not Found)
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
@@ -57,7 +51,6 @@ app.use((req, res, next) => {
   });
 });
 
-// 8. Middleware bắt lỗi Global (500 Internal Server Error)
 app.use((err, req, res, next) => {
   console.error("Lỗi Server:", err.stack);
   res.status(500).json({
@@ -66,7 +59,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 9. Lắng nghe Port và khởi chạy Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

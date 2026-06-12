@@ -36,12 +36,11 @@ const SinhVienHoaDon = () => {
   const fetchMyInvoices = async () => {
     setLoading(true);
     try {
-      // Gọi chung hàm getAll, Backend sẽ tự động check token để trả về hóa đơn cá nhân
       const res = await hoaDonApi.getAll({
         thangNam: filterThangNam,
         trangThai: filterTrangThai,
         page: currentPage,
-        limit: 10, // Mỗi trang hiển thị 10 hóa đơn
+        limit: 10,
       });
       if (res.success) {
         setDanhSach(res.data);
@@ -162,7 +161,7 @@ const SinhVienHoaDon = () => {
           value={filterThangNam}
           onChange={(e) => {
             setFilterThangNam(e.target.value);
-            setCurrentPage(1); // Reset trang khi đổi bộ lọc
+            setCurrentPage(1);
           }}
         >
           <option value="">-- Chọn kỳ thu (Tất cả) --</option>

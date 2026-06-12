@@ -13,7 +13,6 @@ import {
 const ChiTietSinhVienModal = ({ isOpen, onClose, sinhVien }) => {
   if (!isOpen || !sinhVien) return null;
 
-  // Hàm format ngày tháng giống hệt bên trang sinh viên
   const formatDate = (dateString) => {
     if (!dateString) return "Chưa cập nhật";
     const date = new Date(dateString);

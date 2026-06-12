@@ -35,8 +35,8 @@ exports.getDanhSachHopDong = async (req, res) => {
 
     const [danhSachHopDong, totalRecords] = await Promise.all([
       HopDong.find(query)
-        .populate("sinhVien", "maSV hoTen sdt") // Đã fix: sinhVienId -> sinhVien
-        .populate("phong", "maPhong tenPhong toaNha") // Đã fix: phongId -> phong
+        .populate("sinhVien", "maSV hoTen sdt")
+        .populate("phong", "maPhong tenPhong toaNha")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber),
@@ -65,12 +65,12 @@ exports.getDanhSachHopDong = async (req, res) => {
 exports.getHopDongById = async (req, res) => {
   try {
     const hopDong = await HopDong.findById(req.params.id)
-      .populate("sinhVien", "maSV hoTen cccd sdt queQuan") // Đã fix: sinhVienId -> sinhVien
+      .populate("sinhVien", "maSV hoTen cccd sdt queQuan")
       .populate({
-        path: "phong", // Đã fix: phongId -> phong
+        path: "phong",
         select: "maPhong tenPhong toaNha loaiPhong",
         populate: {
-          path: "loaiPhong", // Đã fix: loaiPhongId -> loaiPhong
+          path: "loaiPhong",
           select: "tenLoaiPhong donGia sucChua",
         },
       });
@@ -92,131 +92,6 @@ exports.getHopDongById = async (req, res) => {
 // TẠO HỢP ĐỒNG MỚI
 // =====================================
 
-// exports.taoHopDong = async (req, res) => {
-//   try {
-//     const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
-//       req.body;
-
-//     // 1. Kiểm tra mã hợp đồng trùng lặp
-//     const hdTonTai = await HopDong.findOne({ maHD });
-//     if (hdTonTai)
-//       return res.status(400).json({ message: "Mã hợp đồng đã tồn tại!" });
-
-//     // 2. Kiểm tra Sinh viên
-//     const svData = await SinhVien.findById(sinhVien);
-//     if (!svData)
-//       return res.status(404).json({ message: "Không tìm thấy sinh viên!" });
-//     if (svData.phong) {
-//       return res.status(400).json({
-//         message: "Sinh viên này hiện đang có hợp đồng và đã được xếp phòng!",
-//       });
-//     }
-
-//     // 3. Kiểm tra sức chứa của Phòng
-//     const phongData = await Phong.findById(phong).populate("loaiPhong");
-//     if (!phongData)
-//       return res.status(404).json({ message: "Không tìm thấy phòng!" });
-
-//     if (phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua) {
-//       return res.status(400).json({
-//         message: "Phòng này đã đạt tối đa sức chứa, không thể xếp thêm!",
-//       });
-//     }
-//     if (phongData.trangThai === "Bảo trì" || phongData.isDeleted) {
-//       return res
-//         .status(400)
-//         .json({ message: "Phòng đang bảo trì hoặc đã ngừng hoạt động!" });
-//     }
-
-//     // 4. Bắt đầu tạo hợp đồng
-//     const hopDongMoi = await HopDong.create({
-//       maHD,
-//       sinhVien,
-//       phong,
-//       ngayBatDau,
-//       ngayKetThuc,
-//       tienCoc,
-//     });
-
-//     // 5. Cập nhật trạng thái liên đới
-//     svData.phong = phongData._id;
-//     await svData.save();
-
-//     // Tăng số người và gọi hàm Utils cập nhật trạng thái
-//     phongData.soNguoiHienTai += 1;
-//     await phongData.save();
-//     await updateRoomStatus(phongData._id); // <--- Gọi Utils ở đây
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Tạo hợp đồng và xếp phòng thành công!",
-//       data: hopDongMoi,
-//     });
-//   } catch (error) {
-//     if (error.name === "ValidationError") {
-//       const messages = Object.values(error.errors).map((val) => val.message);
-//       return res
-//         .status(400)
-//         .json({ success: false, message: messages.join(", ") });
-//     }
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Lỗi server khi tạo hợp đồng!" });
-//   }
-// };
-
-// exports.taoHopDong = async (req, res) => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-//   try {
-//     const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
-//       req.body;
-
-//     // 1. Kiểm tra logic (dùng session để truy vấn)
-//     const svData = await SinhVien.findById(sinhVien).session(session);
-//     if (!svData || svData.phong)
-//       throw new Error("Sinh viên không hợp lệ hoặc đã có phòng!");
-
-//     const phongData = await Phong.findById(phong)
-//       .populate("loaiPhong")
-//       .session(session);
-//     if (!phongData || phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua)
-//       throw new Error("Phòng không khả dụng!");
-
-//     // 2. Tạo Hợp Đồng
-//     const [hopDongMoi] = await HopDong.create(
-//       [{ maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc }],
-//       { session },
-//     );
-
-//     // 3. Cập nhật Sinh Viên & Phòng
-//     svData.phong = phongData._id;
-//     await svData.save({ session });
-
-//     phongData.soNguoiHienTai += 1;
-//     await phongData.save({ session });
-
-//     // Lưu thay đổi
-//     await session.commitTransaction();
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Tạo hợp đồng thành công!",
-//       data: hopDongMoi,
-//     });
-//   } catch (error) {
-//     await session.abortTransaction();
-//     res.status(400).json({ success: false, message: error.message });
-//   } finally {
-//     session.endSession();
-//   }
-// };
-
-// =====================================
-// THANH LÝ HỢP ĐỒNG
-// =====================================
-
-// CẬP NHẬT HÀM TẠO HỢP ĐỒNG
 exports.taoHopDong = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -224,8 +99,7 @@ exports.taoHopDong = async (req, res) => {
     const { maHD, sinhVien, phong, ngayBatDau, ngayKetThuc, tienCoc } =
       req.body;
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Đưa về đầu ngày để so sánh công bằng
-
+    today.setHours(0, 0, 0, 0);
     if (new Date(ngayKetThuc) < today) {
       throw new Error(
         "Lỗi: Ngày kết thúc hợp đồng không được nằm trong quá khứ!",
@@ -265,14 +139,13 @@ exports.taoHopDong = async (req, res) => {
     // 3. Tăng người phòng VÀ Cập nhật trạng thái trực tiếp
     phongData.soNguoiHienTai += 1;
 
-    // LOGIC CẬP NHẬT TRẠNG THÁI NGAY TẠI ĐÂY
+    //  CẬP NHẬT TRẠNG THÁI
     if (phongData.soNguoiHienTai >= phongData.loaiPhong.sucChua) {
       phongData.trangThai = "Đầy";
     } else {
       phongData.trangThai = "Đang ở";
     }
 
-    // Lưu lại cùng lúc trong kén an toàn
     await phongData.save({ session });
 
     // Chốt sổ
@@ -291,48 +164,10 @@ exports.taoHopDong = async (req, res) => {
   }
 };
 
-// exports.thanhLyHopDong = async (req, res) => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-//   try {
-//     const hopDong = await HopDong.findById(req.params.id).session(session);
-//     if (!hopDong || hopDong.trangThai === "Đã thanh lý")
-//       throw new Error("Hợp đồng không hợp lệ hoặc đã thanh lý!");
-
-//     hopDong.trangThai = "Đã thanh lý";
-//     await hopDong.save({ session });
-
-//     const svData = await SinhVien.findById(hopDong.sinhVien).session(session);
-//     if (svData) {
-//       svData.phong = null;
-//       await svData.save({ session });
-//     }
-
-//     const phongData = await Phong.findById(hopDong.phong).session(session);
-//     if (phongData && phongData.soNguoiHienTai > 0) {
-//       phongData.soNguoiHienTai -= 1;
-//       await phongData.save({ session });
-//     }
-
-//     await session.commitTransaction();
-//     await updateRoomStatus(hopDong.phong);
-
-//     res
-//       .status(200)
-//       .json({ success: true, message: "Thanh lý hợp đồng thành công!" });
-//   } catch (error) {
-//     await session.abortTransaction();
-//     res.status(400).json({ success: false, message: error.message });
-//   } finally {
-//     session.endSession();
-//   }
-// };
-
 // =====================================
-// XÓA HỢP ĐỒNG
+// THANH LÝ HỢP ĐỒNG
 // =====================================
 
-// CẬP NHẬT HÀM THANH LÝ
 exports.thanhLyHopDong = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -357,7 +192,7 @@ exports.thanhLyHopDong = async (req, res) => {
       // Giảm số người
       phongData.soNguoiHienTai -= 1;
 
-      // LOGIC CẬP NHẬT TRẠNG THÁI NGAY TẠI ĐÂY
+      // CẬP NHẬT TRẠNG THÁI
       if (phongData.soNguoiHienTai === 0) {
         phongData.trangThai = "Trống";
       } else {
@@ -379,6 +214,11 @@ exports.thanhLyHopDong = async (req, res) => {
     session.endSession();
   }
 };
+
+// =====================================
+// XÓA HỢP ĐỒNG
+// =====================================
+
 exports.xoaHopDong = async (req, res) => {
   try {
     const hopDong = await HopDong.findById(req.params.id);

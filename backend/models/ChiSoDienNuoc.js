@@ -49,7 +49,6 @@ const chiSoDienNuocSchema = new mongoose.Schema(
   },
 );
 
-// Tạo index để không bị chốt trùng phòng trong cùng 1 tháng
 chiSoDienNuocSchema.index(
   {
     phong: 1,

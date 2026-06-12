@@ -12,14 +12,14 @@ const SinhVienModal = ({
     maSV: "",
     hoTen: "",
     ngaySinh: "",
-    gioiTinh: "Nam", // Mặc định là Nam
+    gioiTinh: "Nam",
     cccd: "",
     sdt: "",
     email: "",
     queQuan: "",
   });
 
-  // Tự động điền dữ liệu nếu là form Cập Nhật (Sửa)
+  // Tự động điền dữ liệu nếu là form Cập Nhật
   useEffect(() => {
     if (sinhVienData && isOpen) {
       setFormData({

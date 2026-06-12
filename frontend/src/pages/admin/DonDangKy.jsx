@@ -21,7 +21,7 @@ const DonDangKy = () => {
 
   // State cho Phân trang
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5); // Số lượng đơn trên 1 trang (bạn có thể đổi thành 10, 20...)
+  const [itemsPerPage] = useState(5);
 
   // State quản lý việc hiển thị cửa sổ nhập lý do từ chối
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -42,7 +42,6 @@ const DonDangKy = () => {
     try {
       const res = await donDangKyApi.getAll({ limit: 100 });
       if (res.success) {
-        // Sắp xếp đơn gửi sớm nhất (cũ nhất) lên đầu dựa vào createdAt
         const sortedData = res.data.sort(
           (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
         );
@@ -95,7 +94,7 @@ const DonDangKy = () => {
       if (res.success) {
         toast.success("Đã từ chối đơn đăng ký thành công!");
         setShowRejectModal(false);
-        fetchDanhSach(); // Tải lại danh sách mới
+        fetchDanhSach();
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Lỗi khi từ chối đơn");

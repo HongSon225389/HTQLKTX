@@ -10,7 +10,7 @@ const PhongModal = ({ isOpen, onClose, onSubmit, phongData, loading }) => {
     toaNha: "",
     tang: "",
     loaiPhong: "",
-    donGia: "", // Thêm trường đơn giá vào form để chỉnh sửa trực tiếp
+    donGia: "",
     moTa: "",
   });
 
@@ -36,7 +36,7 @@ const PhongModal = ({ isOpen, onClose, onSubmit, phongData, loading }) => {
         toaNha: phongData.toaNha || "",
         tang: phongData.tang || "",
         loaiPhong: phongData.loaiPhong?._id || phongData.loaiPhong || "",
-        donGia: phongData.loaiPhong?.donGia || "", // Lấy giá hiện tại từ database đổ vào ô nhập
+        donGia: phongData.loaiPhong?.donGia || "",
         moTa: phongData.moTa || "",
       });
     } else {
@@ -70,7 +70,7 @@ const PhongModal = ({ isOpen, onClose, onSubmit, phongData, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData); // Trả toàn bộ cục data (gồm cả mức giá mới) về cho trang chính xử lý
+    onSubmit(formData);
   };
 
   if (!isOpen) return null;
@@ -172,7 +172,7 @@ const PhongModal = ({ isOpen, onClose, onSubmit, phongData, loading }) => {
               </select>
             </div>
 
-            {/* Ô NHẬP GIÁ TIỀN ĐƯỢC CHỈNH SỬA TRỰC TIẾP TẠI ĐÂY */}
+            {/* Ô NHẬP GIÁ TIỀN  */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Giá Thu Loại Phòng Này (VNĐ/Tháng) *

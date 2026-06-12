@@ -32,7 +32,7 @@ exports.getDanhSachHoaDon = async (req, res) => {
           .status(404)
           .json({ success: false, message: "Không tìm thấy hồ sơ sinh viên!" });
       }
-      query.sinhVien = svInfo._id; // Ép thêm điều kiện vào câu query
+      query.sinhVien = svInfo._id;
     }
 
     const pageNumber = parseInt(page);
@@ -42,7 +42,7 @@ exports.getDanhSachHoaDon = async (req, res) => {
     const [danhSachHoaDon, totalRecords] = await Promise.all([
       HoaDon.find(query)
         .populate("phong", "maPhong tenPhong toaNha")
-        .populate("sinhVien", "hoTen maSV") // Kéo thêm Tên và Mã SV để hiển thị
+        .populate("sinhVien", "hoTen maSV")
         .populate("chiSoDienNuoc", "thangNam soDienMoi soNuocMoi")
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -70,7 +70,7 @@ exports.getDanhSachHoaDon = async (req, res) => {
 };
 
 // =====================================
-// 2. LẤY CHI TIẾT HÓA ĐƠN (Cập nhật QR)
+// 2. LẤY CHI TIẾT HÓA ĐƠN
 // =====================================
 exports.getHoaDonById = async (req, res) => {
   try {
@@ -108,7 +108,7 @@ exports.getHoaDonById = async (req, res) => {
       thangNam: hoaDon.thangNam,
     });
 
-    // 🌟 BỔ SUNG CHÍNH Ở ĐÂY: Lấy thông tin tài khoản ngân hàng từ bảng Cấu hình vừa tạo
+    // 3. Lấy thông tin tài khoản ngân hàng từ bảng Cấu hình vừa tạo
     const bankId = await CauHinh.findOne({ maCauHinh: "BANK_ID" });
     const bankAccount = await CauHinh.findOne({ maCauHinh: "BANK_ACCOUNT" });
     const bankName = await CauHinh.findOne({ maCauHinh: "BANK_NAME" });
@@ -120,7 +120,6 @@ exports.getHoaDonById = async (req, res) => {
         donGiaDien,
         donGiaNuoc,
         soNguoiChiaDeu: soNguoiChiaDeu || 1,
-        // Đẩy kèm thông tin ngân hàng về cho Frontend render ảnh QR
         thongTinNganHang: {
           bankId: bankId ? bankId.giaTri : "VCB",
           bankAccount: bankAccount ? bankAccount.giaTri : "1028497731",
@@ -211,8 +210,7 @@ exports.taoHoaDon = async (req, res) => {
       loaiHoaDon: "Tổng hợp",
       tienPhong: tienPhong1Nguoi,
       tienDienNuoc: tienDienNuoc1Nguoi,
-      // tongTien sẽ tự động được Model tính qua hàm pre("save")
-      // Tuy nhiên hàm insertMany sẽ bypass pre("save"), nên ta tính luôn ở đây:
+
       tongTien: tienPhong1Nguoi + tienDienNuoc1Nguoi,
       hanThanhToan: hanThanhToan,
     }));

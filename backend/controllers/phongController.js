@@ -212,7 +212,6 @@ exports.updatePhong = async (req, res) => {
     ) {
       await updateRoomStatus(phong._id);
 
-      // Lấy lại dữ liệu mới nhất sau khi hàm updateRoomStatus đã chạy xong
       phong = await Phong.findById(req.params.id).populate(
         "loaiPhong",
         "maLoaiPhong tenLoaiPhong sucChua donGia",
@@ -279,7 +278,7 @@ exports.maintenancePhong = async (req, res) => {
         .json({ success: false, message: "Không tìm thấy phòng" });
     }
 
-    // Ràng buộc: Chỉ bảo trì phòng trống
+    //  Chỉ bảo trì phòng trống
     if (phong.soNguoiHienTai > 0) {
       return res.status(400).json({
         success: false,
@@ -313,7 +312,7 @@ exports.openPhong = async (req, res) => {
         .json({ success: false, message: "Không tìm thấy phòng" });
     }
 
-    // Ràng buộc: Phải đang bảo trì mới được mở
+    //  Phải đang bảo trì mới được mở
     if (phong.trangThai !== "Bảo trì") {
       return res.status(400).json({
         success: false,
@@ -321,7 +320,7 @@ exports.openPhong = async (req, res) => {
       });
     }
 
-    // Logic: Nếu phòng không có người thì Trống, có người thì Đang ở
+    //  Nếu phòng không có người thì Trống, có người thì Đang ở
     phong.trangThai = phong.soNguoiHienTai === 0 ? "Trống" : "Đang ở";
     await phong.save();
 
@@ -344,8 +343,8 @@ exports.getMyRoom = async (req, res) => {
 
     if (!sinhVien || !sinhVien.phong) {
       return res.status(200).json({
-        success: true, // Trả về thành công để Frontend không văng vào catch()
-        data: null, // Dữ liệu rỗng
+        success: true,
+        data: null,
         message: "Bạn chưa được xếp phòng hoặc không có dữ liệu lưu trú.",
       });
     }

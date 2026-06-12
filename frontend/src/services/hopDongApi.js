@@ -1,7 +1,6 @@
 import axiosClient from "./axiosClient";
 
 export const hopDongApi = {
-  // Các hàm của Admin
   getAll: (params) => axiosClient.get("/hop-dong", { params }),
   create: (data) => axiosClient.post("/hop-dong", data),
   giaHan: (id, ngayKetThucMoi) =>

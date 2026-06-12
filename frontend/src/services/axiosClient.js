@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  // Thay đổi port 5000 nếu backend của bạn chạy port khác
-  baseURL: "http://localhost:5000/api",
+  // Tự động nhận diện môi trường: dùng biến môi trường khi lên Vercel, hoặc dùng localhost khi code dưới máy
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },

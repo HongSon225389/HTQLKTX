@@ -131,7 +131,7 @@ const XuLyYeuCauModal = ({
               >
                 <option value="">-- Chưa phân công / Tự nhận việc --</option>
 
-                {/* ĐOẠN SỬA MỚI: Thêm .filter để chỉ lấy thợ kỹ thuật */}
+                {/*  Thêm .filter để chỉ lấy thợ kỹ thuật */}
                 {danhSachTho
                   ?.filter(
                     (tho) =>
@@ -161,7 +161,6 @@ const XuLyYeuCauModal = ({
               <option value="Chờ xử lý">Chờ xử lý</option>
               <option value="Đang xử lý">⏳ Đang tiếp nhận / Đang xử lý</option>
               <option value="Hoàn thành">✅ Đã hoàn thành / Xong</option>
-              {/* SỬA GIÁ TRỊ VALUE CHUẨN BACKEND */}
               <option value="Đã hủy">❌ Từ chối / Hủy</option>
             </select>
           </div>

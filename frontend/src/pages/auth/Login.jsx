@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext";
 import { authApi } from "../../services/authApi";
-import { FaUser, FaLock } from "react-icons/fa"; // Icon cho đẹp
+import { FaUser, FaLock } from "react-icons/fa";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -43,7 +43,6 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Lỗi chi tiết:", error);
-      // Bắt lỗi từ backend trả về
       const message =
         error.response?.data?.message || "Lỗi kết nối đến máy chủ!";
       toast.error(message);

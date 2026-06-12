@@ -56,7 +56,6 @@ exports.getDanhSachYeuCau = async (req, res) => {
 
     const [danhSach, totalRecords] = await Promise.all([
       YeuCauHoTro.find(query)
-        // Bổ sung Deep Populate để kéo luôn thông tin phòng của sinh viên ra
         .populate({
           path: "sinhVien",
           select: "hoTen fullName maSV mssv phong",
@@ -111,7 +110,7 @@ exports.taoYeuCau = async (req, res) => {
 
     const yeuCauMoi = await YeuCauHoTro.create({
       maYC,
-      sinhVien: thongTinSV._id, // 👉 LƯU ID CỦA HỒ SƠ SINH VIÊN (Tuyệt đối không lưu req.user.id)
+      sinhVien: thongTinSV._id,
       phong: phong || null,
       nhomYeuCau,
       loaiYeuCau,
@@ -131,7 +130,7 @@ exports.taoYeuCau = async (req, res) => {
 };
 
 // ==========================================
-// 3. XỬ LÝ / PHẢN HỒI / PHÂN CÔNG YÊU CẦU (Đã nâng cấp tính năng phân công)
+// 3. XỬ LÝ / PHẢN HỒI / PHÂN CÔNG YÊU CẦU
 // ==========================================
 exports.xuLyYeuCau = async (req, res) => {
   try {
@@ -144,7 +143,7 @@ exports.xuLyYeuCau = async (req, res) => {
         .json({ success: false, message: "Không tìm thấy yêu cầu!" });
     }
 
-    // 🌟 LOGIC MỚI: TỰ ĐỘNG CẬP NHẬT HOẶC GỠ NGƯỜI TIẾP QUẢN ĐƠN
+    // 🌟 LOGIC : TỰ ĐỘNG CẬP NHẬT HOẶC GỠ NGƯỜI TIẾP QUẢN ĐƠN
     if (yeuCau.nhomYeuCau === "Hành chính" || yeuCau.nhomYeuCau === "Khác") {
       // Đơn Hành chính: Ai đang thao tác, người đó đứng tên
       yeuCau.nhanVienXuLy = req.user.id;
@@ -156,7 +155,6 @@ exports.xuLyYeuCau = async (req, res) => {
       } else {
         // Nếu là Admin/Manager thao tác:
         if (nhanVienXuLy === "") {
-          // Bấm chọn "Chưa phân công" -> Xóa người cũ, set về null
           yeuCau.nhanVienXuLy = null;
         } else if (nhanVienXuLy) {
           // Gán cho thợ mới được chọn
@@ -220,7 +218,7 @@ exports.danhGiaYeuCau = async (req, res) => {
   }
 };
 // ==========================================
-// 5. LẤY CHI TIẾT MỘT YÊU CẦU (Dùng chung cho cả 4 vai trò)
+// 5. LẤY CHI TIẾT MỘT YÊU CẦU
 // ==========================================
 exports.getYeuCauById = async (req, res) => {
   try {
@@ -241,7 +239,7 @@ exports.getYeuCauById = async (req, res) => {
       });
     }
 
-    // 🔒 BẢO MẬT: Sinh viên chỉ được quyền xem đơn do chính mình gửi lên
+    //  Sinh viên chỉ được quyền xem đơn do chính mình gửi lên
     if (req.user.role === "STUDENT") {
       const thongTinSV = await SinhVien.findOne({
         $or: [
@@ -261,7 +259,7 @@ exports.getYeuCauById = async (req, res) => {
       }
     }
 
-    // 🔒 BẢO MẬT: Thợ kỹ thuật chỉ được quyền xem các đơn thuộc nhóm "Kỹ thuật"
+    //  Thợ kỹ thuật chỉ được quyền xem các đơn thuộc nhóm "Kỹ thuật"
     if (req.user.role === "TECHNICIAN" && yeuCau.nhomYeuCau !== "Kỹ thuật") {
       return res.status(403).json({
         success: false,
@@ -291,7 +289,7 @@ exports.huyYeuCau = async (req, res) => {
         .json({ success: false, message: "Không tìm thấy yêu cầu!" });
     }
 
-    // 🌟 CHỐT CHẶN AN TOÀN: Chỉ cho phép xóa khi đơn chưa ai đụng tới
+    //  Chỉ cho phép xóa khi đơn chưa ai đụng tới
     if (yeuCau.trangThai !== "Chờ xử lý") {
       return res.status(400).json({
         success: false,

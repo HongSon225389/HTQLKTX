@@ -62,8 +62,8 @@ const TaiSanModal = ({
         await taiSanApi.create(formData);
         toast.success("Thêm tài sản mới thành công!");
       }
-      onSuccess(); // Báo cho component cha load lại bảng
-      onClose(); // Đóng modal
+      onSuccess();
+      onClose();
     } catch (err) {
       toast.error(err.response?.data?.message || "Thao tác thất bại!");
     } finally {

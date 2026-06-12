@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);
 
-// 1. Lấy danh sách (Ai cũng gọi được, Controller tự lo việc phân luồng)
+// 1. Lấy danh sách
 router.get(
   "/",
   authMiddleware.authorize("SUPER_ADMIN", "MANAGER", "TECHNICIAN", "STUDENT"),

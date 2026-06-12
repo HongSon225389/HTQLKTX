@@ -14,7 +14,7 @@ exports.getAllSinhVien = async (req, res) => {
       gioiTinh,
       trangThai,
       phong,
-      locPhong, // Lấy biến lọc phòng từ Query
+      locPhong,
       sort = "-createdAt",
     } = req.query;
 
@@ -31,7 +31,7 @@ exports.getAllSinhVien = async (req, res) => {
     if (trangThai) query.trangThai = trangThai;
     if (phong) query.phong = phong;
 
-    // BỔ SUNG LỌC THEO TÌNH TRẠNG LƯU TRÚ (Hỗ trợ gọi API lọc từ Server sau này)
+    // LỌC THEO TÌNH TRẠNG LƯU TRÚ
     if (locPhong === "CO_PHONG") {
       query.phong = { $ne: null };
     } else if (locPhong === "KHONG_PHONG") {
@@ -42,7 +42,6 @@ exports.getAllSinhVien = async (req, res) => {
 
     const data = await SinhVien.find(query)
       .populate("user", "username role trangThai")
-      // ĐÃ SỬA: populate thêm toaNha để Frontend hiển thị P.101 (Tòa A1)
       .populate("phong", "maPhong tenPhong toaNha")
       .sort(sort);
 
@@ -184,7 +183,7 @@ exports.updateSinhVien = async (req, res) => {
           .json({ success: false, message: "Mã SV đã tồn tại" });
       }
 
-      // ĐỒNG BỘ: Cập nhật luôn username trong bảng User
+      //  Cập nhật luôn username trong bảng User
       await User.findByIdAndUpdate(currentSinhVien.user, {
         username: req.body.maSV,
       });
@@ -332,7 +331,7 @@ exports.deleteSinhVien = async (req, res) => {
     sinhVien.phong = null;
     await sinhVien.save();
 
-    // Tùy chọn: Khóa luôn tài khoản User của sinh viên này
+    // Khóa luôn tài khoản User của sinh viên này
     await User.findByIdAndUpdate(sinhVien.user, { trangThai: "LOCKED" });
 
     res

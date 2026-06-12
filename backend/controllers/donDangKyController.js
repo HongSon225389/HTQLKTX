@@ -2,8 +2,8 @@ const DonDangKy = require("../models/DonDangKy");
 const LoaiPhong = require("../models/LoaiPhong");
 const User = require("../models/User");
 const SinhVien = require("../models/SinhVien");
-const bcrypt = require("bcryptjs"); // Thêm thư viện để hash mật khẩu mặc định
-const NhanVien = require("../models/NhanVien"); // Để lấy ID nhân viên từ User ID
+const bcrypt = require("bcryptjs");
+const NhanVien = require("../models/NhanVien");
 const sendEmail = require("../utils/sendEmail");
 // ======================================
 // GET ALL
@@ -171,7 +171,7 @@ exports.approveDonDangKy = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Không thể duyệt đơn đã bị từ chối" });
 
-    // 1. Kiểm tra xem Sinh viên/User đã tồn tại chưa (phòng ngừa lỗi)
+    // 1. Kiểm tra xem Sinh viên/User đã tồn tại chưa
     const checkMaSV = await SinhVien.findOne({ maSV: don.maSV });
     const checkCCCD = await SinhVien.findOne({ cccd: don.cccd });
     if (checkMaSV || checkCCCD) {

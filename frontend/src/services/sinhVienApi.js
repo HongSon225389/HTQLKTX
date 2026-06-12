@@ -1,9 +1,8 @@
 import axiosClient from "./axiosClient";
 
 export const sinhVienApi = {
-  // Lấy danh sách tất cả hồ sơ sinh viên
   getAll: () => {
-    return axiosClient.get("/sinh-vien"); // Giả định backend của bạn có route GET /api/sinh-vien
+    return axiosClient.get("/sinh-vien");
   },
   getMe: () => {
     return axiosClient.get("/sinh-vien/me");
@@ -15,12 +14,10 @@ export const sinhVienApi = {
     return axiosClient.post("/sinh-vien", data);
   },
 
-  // Cập nhật thông tin sinh viên
   update: (id, data) => {
     return axiosClient.put(`/sinh-vien/${id}`, data);
   },
 
-  // Cho sinh viên rời KTX (Xóa)
   delete: (id) => {
     return axiosClient.delete(`/sinh-vien/${id}`);
   },

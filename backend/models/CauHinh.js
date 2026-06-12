@@ -14,7 +14,7 @@ const cauHinhSchema = new mongoose.Schema(
     },
     giaTri: {
       type: String,
-      required: true, // Lưu dạng chuỗi, lúc tính toán ép kiểu Number sau
+      required: true,
     },
     moTa: {
       type: String,

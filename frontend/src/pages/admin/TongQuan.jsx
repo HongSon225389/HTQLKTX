@@ -78,7 +78,7 @@ const TongQuan = () => {
           </div>
         </div>
 
-        {/* Thẻ 2: Hóa Đơn Chưa Thu (Có dấu ngoặc hiển thị số tiền nợ ở dưới) */}
+        {/* Thẻ 2: Hóa Đơn Chưa Thu */}
         <div className="bg-rose-50 border border-rose-100 p-5 rounded-2xl shadow-sm flex items-center justify-between">
           <div>
             <p className="text-rose-600 font-bold text-xs uppercase tracking-wider mb-1">
@@ -289,7 +289,6 @@ const TongQuan = () => {
               </p>
             ) : (
               hopDongSapHetHan?.map((hd) => {
-                // ĐỔI THÀNH hd.ngayKetThuc
                 const conLai = Math.ceil(
                   (new Date(hd.ngayKetThuc) - new Date()) /
                     (1000 * 60 * 60 * 24),

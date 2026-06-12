@@ -13,7 +13,7 @@ router.get(
   taisanController.getDanhSachTaiSan,
 );
 
-// 2. Lấy chi tiết tài sản (BỔ SUNG)
+// 2. Lấy chi tiết tài sản
 router.get(
   "/:id",
   authMiddleware.authorize("SUPER_ADMIN", "MANAGER", "TECHNICIAN"),

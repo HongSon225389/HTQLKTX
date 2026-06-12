@@ -111,14 +111,14 @@ exports.getDashboardData = async (req, res) => {
     // ==========================================
     // 4. BẢNG PHỤ: HỢP ĐỒNG SẮP HẾT HẠN (< 15 NGÀY)
     // ==========================================
-    // Bước 1: Lấy tất cả hợp đồng đang ở trạng thái hiệu lực
+    // Lấy tất cả hợp đồng đang ở trạng thái hiệu lực
     const cacHopDongHieuLuc = await HopDong.find({
       trangThai: { $regex: /hiệu lực/i },
     })
       .populate("sinhVien", "hoTen maSV phone")
       .populate("phong", "maPhong toaNha");
 
-    // Bước 2: Dùng JavaScript để tính toán số ngày còn lại (Chuẩn hóa biến ngayKetThuc)
+    // Tính toán số ngày còn lại (Chuẩn hóa biến ngayKetThuc)
     const hopDongSapHetHan = cacHopDongHieuLuc
       .filter((hd) => {
         if (!hd.ngayKetThuc) return false;
@@ -132,14 +132,9 @@ exports.getDashboardData = async (req, res) => {
         // Lọc các hợp đồng có thời hạn còn lại từ 15 ngày trở xuống
         return soNgayConLai <= 15;
       })
-      // Sắp xếp các hợp đồng sắp đến ngày kết thúc lên trên cùng
       .sort((a, b) => new Date(a.ngayKetThuc) - new Date(b.ngayKetThuc))
-      // Giới hạn hiển thị tối đa 5 bản ghi trên Dashboard
       .slice(0, 5);
 
-    // ==========================================
-    // TRẢ TOÀN BỘ GÓI DỮ LIỆU VỀ CHO FRONTEND
-    // ==========================================
     res.status(200).json({
       success: true,
       data: {

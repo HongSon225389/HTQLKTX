@@ -3,7 +3,7 @@ const router = express.Router();
 const thongKeController = require("../controllers/thongKeController");
 const authMiddleware = require("../middlewares/auth");
 
-// Route lấy dữ liệu Dashboard (Chỉ Admin và Manager được xem)
+// Chỉ Admin và Manage được xem
 router.get(
   "/tong-quan",
   authMiddleware.protect,

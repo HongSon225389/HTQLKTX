@@ -54,7 +54,6 @@ const QuanLySuCo = () => {
         </div>
       </div>
 
-      {/* Khung chứa Danh sách sẽ ghép API sau */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center text-gray-400 flex flex-col items-center justify-center">
         <FaWrench size={48} className="mb-4 opacity-20" />
         <p className="font-medium text-lg">Chưa có dữ liệu sự cố</p>

@@ -10,7 +10,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import XuLyYeuCauModal from "./XuLyYeuCauModal";
-import ChiTietYeuCauModal from "../student/ChiTietYeuCauModal"; // Import Modal chi tiết
+import ChiTietYeuCauModal from "../student/ChiTietYeuCauModal";
 
 const QuanLyYeuCau = () => {
   const [danhSach, setDanhSach] = useState([]);
@@ -93,7 +93,7 @@ const QuanLyYeuCau = () => {
     if (status === "Chờ xử lý") return "bg-gray-100 text-gray-600";
     if (status === "Đang xử lý") return "bg-blue-100 text-blue-700";
     if (status === "Hoàn thành") return "bg-green-100 text-green-700";
-    return "bg-red-100 text-red-700"; // Đã hủy
+    return "bg-red-100 text-red-700";
   };
 
   return (
@@ -300,7 +300,7 @@ const QuanLyYeuCau = () => {
         danhSachTho={danhSachTho}
       />
 
-      {/* MODAL CHI TIẾT (Chỉ xem) */}
+      {/* MODAL CHI TIẾT */}
       <ChiTietYeuCauModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}

@@ -13,7 +13,6 @@ export const loaiPhongApi = {
   update: (id, data) => {
     return axiosClient.put(`/loai-phong/${id}`, data);
   },
-  // Khóa / Mở khóa loại phòng (Inactive / Active)
   deactivate: (id) => {
     return axiosClient.put(`/loai-phong/${id}/deactivate`);
   },

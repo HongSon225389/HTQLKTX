@@ -35,7 +35,6 @@ const QuanLyTaiKhoan = () => {
     }
   };
 
-  // Đổi currentStatus thành trangThaiHienTai
   const handleToggleStatus = async (id, trangThaiHienTai) => {
     const action = trangThaiHienTai === "ACTIVE" ? "KHÓA" : "MỞ KHÓA";
     if (window.confirm(`Bạn có chắc chắn muốn ${action} tài khoản này?`)) {

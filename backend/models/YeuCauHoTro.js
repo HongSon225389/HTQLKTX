@@ -15,7 +15,6 @@ const yeuCauHoTroSchema = new mongoose.Schema(
       required: [true, "Không xác định được người gửi yêu cầu"],
     },
 
-    // 🌟 ĐÃ SỬA: Chuyển thành Optional (Không bắt buộc)
     phong: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Phong",

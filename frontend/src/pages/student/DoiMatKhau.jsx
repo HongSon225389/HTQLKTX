@@ -18,7 +18,6 @@ const DoiMatKhau = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate cơ bản ở Frontend
     if (formData.newPassword.length < 6) {
       return toast.warning("Mật khẩu mới phải có ít nhất 6 ký tự!");
     }

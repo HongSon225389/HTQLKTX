@@ -10,7 +10,7 @@ exports.getDanhSachNhanVien = async (req, res) => {
     const danhSach = await User.find({
       role: { $in: ["MANAGER", "TECHNICIAN", "SUPER_ADMIN"] },
     })
-      .select("-password") // Tuyệt đối không trả về password
+      .select("-password")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, data: danhSach });
@@ -44,7 +44,7 @@ exports.taoTaiKhoan = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 3. Tạo tài khoản (Đã bỏ isActive đi vì Model tự set trangThai: "ACTIVE")
+    // 3. Tạo tài khoản
     const newUser = await User.create({
       username,
       email,
@@ -54,7 +54,7 @@ exports.taoTaiKhoan = async (req, res) => {
       phone,
     });
 
-    // 4. Trả về data (bỏ password)
+    // 4. Trả về data
     const dataReturn = { ...newUser._doc };
     delete dataReturn.password;
 
@@ -89,7 +89,6 @@ exports.toggleTrangThaiTaiKhoan = async (req, res) => {
       });
     }
 
-    // Đảo ngược trạng thái dạng String
     user.trangThai = user.trangThai === "ACTIVE" ? "LOCKED" : "ACTIVE";
     await user.save();
 

@@ -10,7 +10,6 @@ import {
 
 const TechnicianLayout = () => {
   const navigate = useNavigate();
-  // Giả lập lấy thông tin user đăng nhập (Bạn thay bằng Context/Redux của bạn nhé)
   const user = JSON.parse(localStorage.getItem("user")) || {
     fullName: "Kỹ Thuật Viên",
   };
@@ -55,7 +54,6 @@ const TechnicianLayout = () => {
               }`
             }
           >
-            {/* Nhớ import FaCubes từ react-icons/fa ở đầu file nhé */}
             <FaCubes />
             <span>Bảo Trì Tài Sản</span>
           </NavLink>

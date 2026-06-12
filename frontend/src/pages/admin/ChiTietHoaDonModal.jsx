@@ -26,7 +26,7 @@ const ChiTietHoaDonModal = ({ isOpen, onClose, hoaDonId }) => {
       const res = await hoaDonApi.getById(hoaDonId);
       if (res.success) {
         setData(res.data);
-        setChiTietTinh(res.chiTietTinhToan); // Nhận dữ liệu bổ sung từ Backend
+        setChiTietTinh(res.chiTietTinhToan);
       }
     } catch (error) {
       toast.error("Không thể tải chi tiết hóa đơn!");

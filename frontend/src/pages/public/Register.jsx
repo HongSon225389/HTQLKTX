@@ -8,7 +8,6 @@ const Register = () => {
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // State lưu dữ liệu form
   const [formData, setFormData] = useState({
     hoTenKhach: "",
     maSV: "",
@@ -49,7 +48,6 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Vì backend yêu cầu maDon, tạm thời tự sinh ngẫu nhiên ở Frontend (hoặc bạn có thể để Backend tự sinh)
       const submitData = {
         ...formData,
         maDon: `DK${Date.now().toString().slice(-6)}`,
@@ -58,7 +56,7 @@ const Register = () => {
       const res = await guestApi.guiDonDangKy(submitData);
       if (res.success) {
         toast.success("Gửi đơn đăng ký thành công! Vui lòng chờ BQL duyệt.");
-        navigate("/login"); // Chuyển về trang đăng nhập
+        navigate("/login");
       }
     } catch (error) {
       toast.error(

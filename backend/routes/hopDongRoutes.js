@@ -12,7 +12,7 @@ router.get(
   hopdongController.getMyHopDong,
 );
 
-// 1. Lấy danh sách hợp đồng (Thêm authorize)
+// 1. Lấy danh sách hợp đồng
 router.get(
   "/",
   authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
@@ -26,7 +26,7 @@ router.get(
   hopdongController.getHopDongById,
 );
 
-// 3. Gia hạn hợp đồng (Thêm authorize)
+// 3. Gia hạn hợp đồng
 router.put(
   "/:id/giahan",
   authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),
@@ -50,7 +50,7 @@ router.put(
 // 6. Xóa hẳn hợp đồng
 router.delete(
   "/:id",
-  authMiddleware.authorize("SUPER_ADMIN"), // Nên chỉ giới hạn SuperAdmin xóa cứng
+  authMiddleware.authorize("SUPER_ADMIN"),
   hopdongController.xoaHopDong,
 );
 

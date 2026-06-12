@@ -52,7 +52,7 @@ const QuanLyHoaDon = () => {
         trangThai: filterTrangThai,
         thangNam: filterThangNam,
         page: currentPage,
-        limit: 20, // CHUẨN YÊU CẦU: Mỗi trang 20 dòng
+        limit: 20,
       });
       if (res.success) {
         setDanhSachHoaDon(res.data);
@@ -81,7 +81,7 @@ const QuanLyHoaDon = () => {
       const [m, y] = str.split("/");
       return parseInt(y) * 100 + parseInt(m);
     };
-    const monthDiff = getMonthValue(b.thangNam) - getMonthValue(a.thangNam); // B - A để xếp Giảm dần (Mới nhất lên đầu)
+    const monthDiff = getMonthValue(b.thangNam) - getMonthValue(a.thangNam);
     if (monthDiff !== 0) return monthDiff;
 
     // 2. So sánh Tên Phòng (Tăng dần A-Z)

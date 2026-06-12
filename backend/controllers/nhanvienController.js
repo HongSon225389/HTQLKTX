@@ -22,7 +22,7 @@ exports.getDanhSachNhanVien = async (req, res) => {
 
     const [danhSachNhanVien, totalRecords] = await Promise.all([
       NhanVien.find(query)
-        .populate("user", "username role trangThai") // SỬA: userId -> user
+        .populate("user", "username role trangThai")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber),
@@ -46,7 +46,7 @@ exports.getDanhSachNhanVien = async (req, res) => {
 };
 
 // =====================================
-// GET BY ID (HÀM BẠN YÊU CẦU THÊM MỚI)
+// GET BY ID
 // =====================================
 exports.getNhanVienById = async (req, res) => {
   try {
@@ -76,7 +76,6 @@ exports.getNhanVienById = async (req, res) => {
 // =====================================
 exports.taoNhanVien = async (req, res) => {
   try {
-    // SỬA: Lấy user thay vì userId, bổ sung chucVu và email
     const { user, maNV, hoTen, sdt, email, chucVu } = req.body;
 
     // 1. Kiểm tra trùng mã nhân viên
@@ -94,7 +93,7 @@ exports.taoNhanVien = async (req, res) => {
     }
 
     // Đảm bảo user này chưa được gắn cho nhân viên nào khác
-    const userDaDuocGhan = await NhanVien.findOne({ user }); // SỬA: userId -> user
+    const userDaDuocGhan = await NhanVien.findOne({ user });
     if (userDaDuocGhan) {
       return res.status(400).json({
         message: "Tài khoản này đã được liên kết với một hồ sơ nhân viên khác!",
@@ -103,12 +102,12 @@ exports.taoNhanVien = async (req, res) => {
 
     // 3. Lưu vào DB
     const nhanVienMoi = await NhanVien.create({
-      user, // SỬA: userId -> user
+      user,
       maNV,
       hoTen,
       sdt,
       email,
-      chucVu, // SỬA: Bổ sung trường này vì Model yêu cầu required
+      chucVu,
     });
 
     res.status(201).json({
@@ -130,7 +129,7 @@ exports.taoNhanVien = async (req, res) => {
 // =====================================
 exports.capNhatNhanVien = async (req, res) => {
   try {
-    // SỬA: Check trùng mã NV khi update
+    // Check trùng mã NV khi update
     if (req.body.maNV) {
       const checkMaNV = await NhanVien.findOne({
         maNV: req.body.maNV,
@@ -147,7 +146,7 @@ exports.capNhatNhanVien = async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true },
-    ).populate("user", "username role"); // SỬA: userId -> user
+    ).populate("user", "username role");
 
     if (!nhanVienUpdated) {
       return res
@@ -177,9 +176,6 @@ exports.xoaNhanVien = async (req, res) => {
     }
 
     await nhanVien.deleteOne();
-
-    // Gợi ý nhỏ: Tương tự phòng và sinh viên, nếu nhân viên này từng xử lý Yêu cầu hỗ trợ (YeuCauHoTro),
-    // việc xóa cứng có thể gây lỗi truy vấn sau này. Nếu có thể, hãy cân nhắc đổi trạng thái thành "INACTIVE".
 
     res.status(200).json({ message: "Đã xóa hồ sơ nhân viên!" });
   } catch (error) {

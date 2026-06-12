@@ -1,10 +1,8 @@
-// backend/cron/cleanUpAccounts.js
 const cron = require("node-cron");
 const HopDong = require("../models/HopDong");
 const SinhVien = require("../models/SinhVien");
 const User = require("../models/User");
 
-// Hàm quét và khóa tài khoản
 const lockGhostAccounts = async () => {
   try {
     console.log(

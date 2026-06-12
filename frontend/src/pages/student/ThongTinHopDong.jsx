@@ -7,7 +7,7 @@ import {
   FaSpinner,
   FaInfoCircle,
 } from "react-icons/fa";
-import { hopDongApi } from "../../services/hopDongApi"; // Sửa lại đường dẫn nếu cần
+import { hopDongApi } from "../../services/hopDongApi";
 import { toast } from "react-toastify";
 
 const ThongTinHopDong = () => {
@@ -17,7 +17,7 @@ const ThongTinHopDong = () => {
   useEffect(() => {
     const fetchHopDong = async () => {
       try {
-        const res = await hopDongApi.getMyHopDong(); // Gọi API getMyHopDong
+        const res = await hopDongApi.getMyHopDong();
         if (res.success && res.data) {
           setHopDong(res.data);
         }

@@ -10,7 +10,6 @@ const createInitialAdmin = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ Đã kết nối Database...");
 
-    // SỬA: Dùng "SUPER_ADMIN" viết hoa toàn bộ theo chuẩn DB
     const adminExists = await User.findOne({
       role: "SUPER_ADMIN",
     });
@@ -25,10 +24,9 @@ const createInitialAdmin = async () => {
       10,
     );
 
-    // SỬA: Cập nhật Role, trangThai và bổ sung email bắt buộc
     await User.create({
       username: process.env.SUPER_ADMIN_USERNAME,
-      email: process.env.SUPER_ADMIN_EMAIL || "admin@ktx.com", // Có thể thêm biến này vào .env
+      email: process.env.SUPER_ADMIN_EMAIL || "admin@ktx.com",
       password: hashedPassword,
       role: "SUPER_ADMIN",
       trangThai: "ACTIVE",

@@ -121,7 +121,6 @@ const AdminLayout = () => {
         {/* MAIN CONTENT - Nội dung các trang con sẽ được render vào đây */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
           <div className="bg-white rounded-xl shadow-sm min-h-full p-6 border border-gray-100">
-            {/* Outlet là cái lỗ hổng để React Router nhét các trang (Dashboard, QL Phong...) vào */}
             <Outlet />
           </div>
         </main>

@@ -13,7 +13,7 @@ router.get(
   nhanvienController.getDanhSachNhanVien,
 );
 
-// 2. Lấy chi tiết 1 nhân viên (THÊM MỚI)
+// 2. Lấy chi tiết 1 nhân viên
 router.get(
   "/:id",
   authMiddleware.authorize("SUPER_ADMIN", "MANAGER"),

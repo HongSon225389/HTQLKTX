@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes, FaBolt, FaTint, FaCalendarAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { phongApi } from "../../services/phongApi"; // Để lấy danh sách phòng
+import { phongApi } from "../../services/phongApi";
 import { chiSoDienNuocApi } from "../../services/chiSoDienNuocApi";
 import { hoaDonApi } from "../../services/hoaDonApi";
 const TaoHoaDonModal = ({ isOpen, onClose, onSuccess }) => {
@@ -18,7 +18,7 @@ const TaoHoaDonModal = ({ isOpen, onClose, onSuccess }) => {
     nuocCu: "",
     nuocMoi: "",
   });
-  const [hasOldData, setHasOldData] = useState(false); // Trạng thái khóa/mở ô nhập
+  const [hasOldData, setHasOldData] = useState(false);
   // Tự động set kỳ thu là tháng hiện tại khi mở Modal
   useEffect(() => {
     if (isOpen) {

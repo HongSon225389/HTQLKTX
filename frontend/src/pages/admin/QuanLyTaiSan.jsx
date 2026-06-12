@@ -76,7 +76,7 @@ const QuanLyTaiSan = () => {
   };
 
   const openModal = (taiSan = null) => {
-    setSelectedTaiSan(taiSan); // Truyền nguyên object tài sản vào nếu là Sửa, truyền null nếu là Thêm
+    setSelectedTaiSan(taiSan);
     setIsModalOpen(true);
   };
 
