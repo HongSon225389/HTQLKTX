@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const hopdongController = require("../controllers/hopdongController");
+const hopdongController = require("../controllers/hopDongController");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);
