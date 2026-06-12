@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const ChiSoDienNuocController = require("../controllers/ChiSoDienNuocController");
+const ChiSoDienNuocController = require("../controllers/chiSoDienNuocController");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);
