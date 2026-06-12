@@ -4,7 +4,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import {
   FaUserAlt,
   FaBed,
-  FaFileSignature, // Đã thêm icon Hợp đồng
+  FaFileSignature,
   FaFileInvoiceDollar,
   FaTools,
   FaKey,
@@ -23,7 +23,7 @@ const StudentLayout = () => {
       path: "/student/hop-dong",
       name: "Thông Tin Hợp Đồng",
       icon: <FaFileSignature />,
-    }, // Đã thêm mục này
+    },
     {
       path: "/student/hoa-don",
       name: "Hóa Đơn Thanh Toán",

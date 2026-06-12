@@ -25,7 +25,7 @@ const hoaDonRoutes = require("./routes/hoaDonRoutes");
 const taiSanRoutes = require("./routes/taiSanRoutes");
 const yeuCauHoTroRoutes = require("./routes/yeuCauHoTroRoutes");
 const cauHinhRoutes = require("./routes/cauHinhRoutes");
-const thongkeRoutes = require("./routes/thongkeRoutes");
+const thongkeRoutes = require("./routes/thongKeRoutes");
 const taiKhoanRoutes = require("./routes/taiKhoanRoutes");
 const initCronJobs = require("./cron/cleanUpAccounts");
 initCronJobs();

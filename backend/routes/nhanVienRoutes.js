@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const nhanvienController = require("../controllers/nhanvienController");
+const nhanvienController = require("../controllers/nhanVienController");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware.protect);
